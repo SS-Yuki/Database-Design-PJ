@@ -7,9 +7,6 @@ public class IssueLocation {
     private int startLine;
     private int endLine;
 
-    private String fileName;
-
-
     public int getIssueInstanceId() {
         return issueInstanceId;
     }
@@ -40,13 +37,5 @@ public class IssueLocation {
 
     public void setEndLine(int endLine) {
         this.endLine = endLine;
-    }
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
     }
 }

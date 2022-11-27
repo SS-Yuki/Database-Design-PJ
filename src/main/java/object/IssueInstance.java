@@ -13,6 +13,8 @@ public class IssueInstance {
 
     private IssueInstanceStatus status;
 
+    private String fileName;
+
     public int getIssueInstanceId() {
         return issueInstanceId;
     }
@@ -43,5 +45,13 @@ public class IssueInstance {
 
     public void setStatus(IssueInstanceStatus status) {
         this.status = status;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }
