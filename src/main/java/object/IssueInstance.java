@@ -1,5 +1,9 @@
 package object;
 
+import cn.edu.fudan.issue.entity.dbo.Location;
+
+import java.util.List;
+
 enum IssueInstanceStatus {
     APPEAR, DISAPPEAR
 }
@@ -14,6 +18,8 @@ public class IssueInstance {
     private IssueInstanceStatus status;
 
     private String fileName;
+
+    List<Location> locations;
 
     public int getIssueInstanceId() {
         return issueInstanceId;
@@ -53,5 +59,13 @@ public class IssueInstance {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public List<Location> getLocations() {
+        return locations;
+    }
+
+    public void setLocations(List<Location> locations) {
+        this.locations = locations;
     }
 }

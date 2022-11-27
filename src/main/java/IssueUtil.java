@@ -1,6 +1,11 @@
 import cn.edu.fudan.issue.entity.dbo.Location;
+import cn.edu.fudan.issue.entity.dbo.RawIssue;
+import cn.edu.fudan.issue.entity.enums.RawIssueStatus;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import object.CommitUtil;
+import object.IssueInstance;
+
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
@@ -13,7 +18,6 @@ public class IssueUtil {
 
     private static final String SEARCH_API = "http://127.0.0.1:9000/api/issues/search";
     private static final String AUTHORIZATION = "Basic YWRtaW46MTIzNDU2Nzg=";
-    static List <RawIssue> resultRawIssues = new ArrayList<RawIssue>();
 
     public static JSONObject getSonarIssueResults(String componentKeys) throws IOException {
 
@@ -150,56 +154,38 @@ public class IssueUtil {
         return location;
     }
 
-    public List<Location> getLocations(JSONObject issue, String repoPath) throws Exception {
+    public static List<Location> getLocations(JSONObject issue) throws Exception {
         int startLine = 0;
         int endLine = 0;
-        String sonarPath;
-        String[] sonarComponents;
-        String filePath = null;
         List<Location> locations = new ArrayList<>();
         JSONArray flows = issue.getJSONArray("flows");
         if (flows.size() == 0) {
-            //第一种针对issue中的textRange存储location
             JSONObject textRange = issue.getJSONObject("textRange");
             if (textRange != null) {
                 startLine = textRange.getIntValue("startLine");
                 endLine = textRange.getIntValue("endLine");
             } else {
-                // 无 location 行号信息的 issue 过滤掉
                 return new ArrayList<>();
-            }
-
-            sonarPath = issue.getString("component");
-            if (sonarPath != null) {
-                sonarComponents = sonarPath.split(":");
-                if (sonarComponents.length >= 2) {
-                    filePath = sonarComponents[sonarComponents.length - 1];
-                }
             }
 
             Location mainLocation = getLocation(startLine, endLine);
             locations.add(mainLocation);
-        } else {
-            //第二种针对issue中的flows中的所有location存储
+        }
+        else {
             for (int i = 0; i < flows.size(); i++) {
                 JSONObject flow = flows.getJSONObject(i);
                 JSONArray flowLocations = flow.getJSONArray("locations");
-                //一个flows里面有多个locations， locations是一个数组，目前看sonar的结果每个locations都是一个location，但是不排除有多个。
+
                 for (int j = 0; j < flowLocations.size(); j++) {
                     JSONObject flowLocation = flowLocations.getJSONObject(j);
-                    String flowComponent = flowLocation.getString("component");
+//                    String flowComponent = flowLocation.getString("component");
                     JSONObject flowTextRange = flowLocation.getJSONObject("textRange");
-                    if (flowTextRange == null || flowComponent == null) {
+                    if (flowTextRange == null) {
                         continue;
                     }
+
                     int flowStartLine = flowTextRange.getIntValue("startLine");
                     int flowEndLine = flowTextRange.getIntValue("endLine");
-                    String flowFilePath = null;
-
-                    String[] flowComponents = flowComponent.split(":");
-                    if (flowComponents.length >= 2) {
-                        flowFilePath = flowComponents[flowComponents.length - 1];
-                    }
 
                     Location location = getLocation(flowStartLine, flowEndLine);
                     locations.add(location);
@@ -210,8 +196,71 @@ public class IssueUtil {
         return locations;
     }
 
+    public static String getFileName(JSONObject issue) {
+        String sonarPath;
+        String[] sonarComponents;
+        String filePath = null;
 
+        sonarPath = issue.getString("component");
+        if (sonarPath != null) {
+            sonarComponents = sonarPath.split(":");
+            if (sonarComponents.length >= 2) {
+                filePath = sonarComponents[sonarComponents.length - 1];
+            }
+        }
 
+        return filePath;
+    }
+
+    public static List<RawIssue> getSonarResult(int repositoryId, int branchId, int commitId) throws Exception {
+        //获取issue数量
+        List<RawIssue> resultRawIssues = new ArrayList<RawIssue>();
+        JSONObject sonarResult = getSonarIssueResults("repositoryId" + repositoryId + "_" + "branchId" + branchId + "_" + "commitId" + commitId);
+        JSONArray sonarRawIssues = sonarResult.getJSONArray("issues");
+        for (int j = 0; j < sonarRawIssues.size(); j++) {
+            JSONObject sonarIssue = sonarRawIssues.getJSONObject(j);
+
+            String component = sonarIssue.getString("component");
+            if (!component.endsWith(".java")) {
+                continue;
+            }
+
+            List<Location> locations = getLocations(sonarIssue);
+            if (locations.isEmpty()) {
+                continue;
+            }
+
+            RawIssue rawIssue = new RawIssue();
+
+            rawIssue.setType(sonarIssue.getString("type"));
+            rawIssue.setFileName(getFileName(sonarIssue));
+            rawIssue.setDetail(sonarIssue.getString("message"));
+            rawIssue.setLocations(locations);
+            rawIssue.setCommitId(String.valueOf(commitId));
+
+            String rawIssueUuid = RawIssue.generateRawIssueUUID(rawIssue);
+            rawIssue.setUuid(rawIssueUuid);
+
+            resultRawIssues.add(rawIssue);
+        }
+        return resultRawIssues;
+    }
+
+    public static List<RawIssue> IssueInstancesToRawIssues(List<IssueInstance> issueInstances) {
+        List<RawIssue> rawIssues = new ArrayList<RawIssue>();
+        for (int i = 0; i < issueInstances.size(); i++) {
+            RawIssue rawIssue = new RawIssue();
+
+            rawIssue.setType("");
+            rawIssue.setFileName(issueInstances.get(i).getFileName());
+            rawIssue.setDetail("");
+            rawIssue.setLocations(issueInstances.get(i).getLocations());
+            rawIssue.setCommitId(String.valueOf(CommitUtil.getCommitObj(issueInstances.get(i).getCommitId()).getCommitId()));
+
+            rawIssues.add(rawIssue);
+        }
+        return rawIssues;
+    }
 
 
 }
