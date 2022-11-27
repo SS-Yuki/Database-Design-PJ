@@ -13,6 +13,14 @@
             <artifactId>fastjson</artifactId>
             <version>1.2.9</version>
         </dependency>
+
+        <dependency>
+            <groupId>cn.edu.fudan</groupId>
+            <artifactId>issue</artifactId>
+            <version>1.0.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/issue-1.0.0-jar-with-dependencies.jar</systemPath>
+        </dependency>
     </dependencies>
 
     <properties>
