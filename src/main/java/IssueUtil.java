@@ -12,7 +12,7 @@ public class IssueUtil {
 
     private static final String SEARCH_API = "http://127.0.0.1:9000/api/issues/search";
     private static final String AUTHORIZATION = "Basic YWRtaW46MTIzNDU2Nzg=";
-    static List <RawIssue> resultRawIssues;
+    static List <RawIssue> resultRawIssues = new ArrayList<RawIssue>();
 
     public static JSONObject getSonarIssueResults(String componentKeys) throws IOException {
 
@@ -103,11 +103,10 @@ public class IssueUtil {
         return locations;
     }
 
-    private static boolean getSonarResult(String repoUuid, String commit, String repoPath, String key, String jgitRepoPath, String preFixPath) {
+    static boolean getSonarResult(String repoUuid, String commit, String repoPath, String key, String jgitRepoPath, String preFixPath) {
         //获取issue数量
         try {
             JSONArray sonarRawIssues = getSonarIssueResults(repoUuid + "_" + commit + key).getJSONArray("issues");
-            System.out.println(sonarRawIssues);
             for (int j = 0; j < sonarRawIssues.size(); j++) {
                 JSONObject sonarIssue = sonarRawIssues.getJSONObject(j);
 
@@ -119,7 +118,6 @@ public class IssueUtil {
 
                 //解析location
                 List<Location> locations = getLocations(sonarIssue, repoPath);
-                locations.forEach(location->System.out.println(location.getStartLine()));
                 if (locations.isEmpty()) {
                     continue;
                 }
@@ -134,7 +132,6 @@ public class IssueUtil {
                 rawIssue.setUuid(rawIssueUuid);
 //                locations.forEach(location -> location.setRawIssueId(rawIssueUuid));
 
-
                 resultRawIssues.add(rawIssue);
             }
             return true;
@@ -145,12 +142,5 @@ public class IssueUtil {
     }
 
 
-
-
-
-    public static void main(String[] args) throws IOException {
-        getSonarResult("a", "a", "", "a", "", "");
-        resultRawIssues.forEach(System.out::println);
-    }
 
 }
