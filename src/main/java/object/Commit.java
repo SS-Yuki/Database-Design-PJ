@@ -11,6 +11,19 @@ public class Commit {
     private Date commitTime;
     private String commiter;
 
+//    public Commit(int commitId, branchId, hash, commitTime, commiter) {
+//
+//    }
+
+    public Commit(int branchId, String hash, Date commitTime, String commiter) {
+        this.branchId = branchId;
+        this.hash = hash;
+        this.commitTime = commitTime;
+        this.commiter = commiter;
+    }
+
+    public Commit() {}
+
     public int getCommitId() {
         return commitId;
     }

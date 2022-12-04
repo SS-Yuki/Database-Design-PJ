@@ -7,6 +7,14 @@ public class Branch {
 
     private String name;
 
+    public Branch(int repositoryId, String name) {
+        this.repositoryId = repositoryId;
+        this.name = name;
+    }
+
+    public Branch() {
+    }
+
     public int getBranchId() {
         return branchId;
     }
