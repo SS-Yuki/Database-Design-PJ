@@ -18,6 +18,9 @@ public final class GitUtil {
         REMOTE("refs/remotes/origin/");
 
         private String prefix;
+        public String getPrefix() {
+            return prefix;
+        }
         GitBranchType(String prefix) {
             this.prefix = prefix;
         }

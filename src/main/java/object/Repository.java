@@ -4,7 +4,13 @@ public class Repository {
     private int repositoryId;
 
     private String name;
-    private String url;
+//    private String url;
+
+    public Repository(String name) {
+        this.name = name;
+    }
+    public Repository() {
+    }
 
     public int getRepositoryId() {
         return repositoryId;
@@ -22,11 +28,11 @@ public class Repository {
         this.name = name;
     }
 
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
+//    public String getUrl() {
+//        return url;
+//    }
+//
+//    public void setUrl(String url) {
+//        this.url = url;
+//    }
 }
