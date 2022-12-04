@@ -1,4 +1,7 @@
+package com.database.utils;
+
 import cn.edu.fudan.issue.entity.dbo.Location;
+import cn.edu.fudan.issue.entity.dbo.RawIssue;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import java.io.*;
@@ -6,14 +9,27 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
-
+import java.util.Properties;
 
 public class IssueUtil {
 
     private static final String SEARCH_API = "http://127.0.0.1:9000/api/issues/search";
-    private static final String AUTHORIZATION = "Basic YWRtaW46MTIzNDU2Nzg=";
+    private static String AUTHORIZATION = "Basic ";
     static List <RawIssue> resultRawIssues = new ArrayList<RawIssue>();
+
+    static {
+        InputStream is = ClassLoader.getSystemResourceAsStream("sonar.properties");
+        Properties properties = new Properties();
+        try {
+            properties.load(is);
+            String auth = properties.getProperty("sonar.username") + ":" + properties.getProperty("sonar.password");
+            AUTHORIZATION += Base64.getEncoder().encodeToString(auth.getBytes());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     public static JSONObject getSonarIssueResults(String componentKeys) throws IOException {
 

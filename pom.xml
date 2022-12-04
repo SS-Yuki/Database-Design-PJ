@@ -21,6 +21,14 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/lib/issue-1.0.0-jar-with-dependencies.jar</systemPath>
         </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <properties>

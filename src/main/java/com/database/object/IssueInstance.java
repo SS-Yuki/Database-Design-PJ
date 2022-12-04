@@ -1,4 +1,4 @@
-package object;
+package com.database.object;
 
 enum IssueInstanceStatus {
     APPEAR, DISAPPEAR

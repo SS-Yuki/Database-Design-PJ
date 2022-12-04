@@ -1,4 +1,4 @@
-package object;
+package com.database.object;
 
 public class Branch {
     private int branchId;

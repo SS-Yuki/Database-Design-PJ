@@ -1,4 +1,4 @@
-package object;
+package com.database.object;
 
 import java.util.Date;
 

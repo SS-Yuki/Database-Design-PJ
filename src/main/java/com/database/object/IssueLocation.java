@@ -1,4 +1,4 @@
-package object;
+package com.database.object;
 
 public class IssueLocation {
     private int issueInstanceId;

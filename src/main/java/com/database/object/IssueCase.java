@@ -1,4 +1,4 @@
-package object;
+package com.database.object;
 
 enum IssueCaseSeverity {
     BLOCKER, MINOR, CRITICAL, INFO, MAJOR
