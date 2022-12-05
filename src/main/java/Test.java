@@ -15,13 +15,19 @@ import java.util.Iterator;
 import java.util.List;
 
 public class Test {
+    static int commitInitId = 0;
 
     public static void main(String[] args) throws Exception {
-        String baseDir = "";
-        String pjName = "";
+        String baseDir = "C:\\GitCloneRepository";
+        String pjName = "scannerDemo";
+        String pathName = baseDir + File.separator + pjName;
 
 //        1.确定本地项目（即确定repo）
-        Git git = Git.open(new File(baseDir + File.separator + pjName));
+        Git git = Git.open(new File(pathName));
+        git.checkout()
+                .setCreateBranch(false)
+                .setName("main")
+                .call();
 
 //        2.利用jgit完成repo, branch, commit 的入库
 
@@ -32,6 +38,7 @@ public class Test {
         List<Ref> refs = git.branchList().call();
         for (Ref ref : refs) {
             //branch
+//            System.out.println(ref.getName());
             String branchName = ref.getName().substring(GitUtil.GitBranchType.LOCAL.getPrefix().length());
             Branch branch = new Branch(repositoryId, branchName);
             int branchId = insertBranch(branch);
@@ -41,19 +48,37 @@ public class Test {
                     .setName(branchName)
                     .call();
             for (RevCommit commitFromPj : git.log().call()) {
+//                System.out.println(commitFromPj.getName());
+//                System.out.println(commitFromPj.getAuthorIdent().getWhen());
                 //commit
                 Commit commitForImport = new Commit(branchId,
                         commitFromPj.getName(),
                         commitFromPj.getAuthorIdent().getWhen(),
                         commitFromPj.getAuthorIdent().getName());
-                insertCommit(commitForImport);
+                int commitId = insertCommit(commitForImport);
+
+
+//                3.对不同的commit进行自动化扫描
+                String commitHash = commitForImport.getHash();
+                git.checkout()
+                    .setCreateBranch(false)
+                    .setName(commitHash)
+                    .call();
+                String cdStr = "cmd /k CD " + pathName;
+                String componentKeys = "repositoryId" + repositoryId + "_" + "branchId" + branchId + "_" + "commitId" + commitId;
+                String scannerStr = "sonar-scanner -D sonar.projectKey=" + componentKeys;
+//                Runtime.getRuntime().exec(cdStr);
+//                Cmd.run(cdStr);
+                System.out.println(componentKeys);
+                System.out.println(Cmd.run(cdStr + " && " + scannerStr));
+                System.out.println(componentKeys);
             }
         }
 
-//        3.对不同的commit进行自动化扫描
+//
         scannerCommit();
 //        4.从最早的commit开始进行case和instance的入库
-        insertIssue();
+//        insertIssue();
     }
 
     private static void insertIssue() throws Exception {
@@ -79,16 +104,37 @@ public class Test {
 
                 for (int i = 0; i < resultRawIssues.size(); i++) {
                     if (resultRawIssues.get(i).getMappedRawIssue() == null) {
-                        IssueInstance issueInstance = new IssueInstance();
+                        //入库
                         IssueCase issueCase = new IssueCase();
+                        issueCase.setAppearCommitId(commitId);
+                        int issueCaseId = insertIssueCase(issueCase);
+
+                        IssueInstance issueInstance = new IssueInstance();
+                        issueInstance.setIssueCaseId(issueCaseId);
+                        insertIssueInstance(issueInstance);
                     } else {
                         IssueInstance issueInstance = new IssueInstance();
+                        int issueCaseId = getIssueCaseIdbyMatch();
+                        issueInstance.setIssueCaseId(issueCaseId);
+                        insertIssueInstance(issueInstance);
                     }
                 }
 
             }
 
         }
+    }
+
+    private static int getIssueCaseIdbyMatch() {
+        return 0;
+    }
+
+    private static void insertIssueInstance(IssueInstance issueInstance) {
+        return;
+    }
+
+    private static int insertIssueCase(IssueCase issueCase) {
+        return 0;
     }
 
     private static void scannerCommit() {
@@ -102,7 +148,8 @@ public class Test {
         return 0;
     }
 
-    private static void insertCommit(Commit commitForImport) {
+    private static int insertCommit(Commit commitForImport) {
+        return commitInitId++;
     }
 
     private static int insertBranch(Branch branch) {

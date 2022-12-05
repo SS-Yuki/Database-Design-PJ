@@ -21,6 +21,15 @@ public class IssueCase {
     private int appearCommitId;
     private int solveCommitId;
 
+    public IssueCase(IssueCaseSeverity severity, IssueCaseType type, int appearCommitId) {
+        this.severity = severity;
+        this.type = type;
+        this.appearCommitId = appearCommitId;
+    }
+
+    public IssueCase() {
+    }
+
     public int getIssueCaseId() {
         return issueCaseId;
     }
