@@ -84,7 +84,7 @@ public class RawIssueMatch {
         curRawIssueList.add(curRawIssue1);
         curRawIssueList.add(curRawIssue2);
 
-        AnalyzerUtil.addExtraAttributeInRawIssues(curRawIssueList, baseRepoPath);
+//        AnalyzerUtil.addExtraAttributeInRawIssues(curRawIssueList, baseRepoPath);
 
         //3. 进行映射
         // 前一个版本的缺陷 后一个版本的缺陷 当前版本的文件中所有方法及变量名

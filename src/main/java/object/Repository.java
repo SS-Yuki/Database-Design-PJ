@@ -4,10 +4,20 @@ public class Repository {
     private int repositoryId;
 
     private String name;
+    private String baseDir;
+
+    public String getBaseDir() {
+        return baseDir;
+    }
+
+    public void setBaseDir(String baseDir) {
+        this.baseDir = baseDir;
+    }
 //    private String url;
 
-    public Repository(String name) {
+    public Repository(String name, String baseDir) {
         this.name = name;
+        this.baseDir = baseDir;
     }
     public Repository() {
     }

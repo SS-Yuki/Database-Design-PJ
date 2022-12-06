@@ -4,10 +4,6 @@ enum IssueCaseSeverity {
     BLOCKER, MINOR, CRITICAL, INFO, MAJOR
 }
 
-enum IssueCaseType {
-    BUG, VULNERABILITY, CODE_SMELL
-}
-
 enum IssueCaseStatus {
     SOLVED, UNSOLVED
 }

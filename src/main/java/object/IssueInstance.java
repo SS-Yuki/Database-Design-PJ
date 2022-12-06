@@ -4,10 +4,6 @@ import cn.edu.fudan.issue.entity.dbo.Location;
 
 import java.util.List;
 
-enum IssueInstanceStatus {
-    APPEAR, DISAPPEAR
-}
-
 public class IssueInstance {
     private int issueInstanceId;
 
