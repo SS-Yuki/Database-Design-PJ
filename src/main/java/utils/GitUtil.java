@@ -1,4 +1,4 @@
-package Utils;
+package utils;
 
 import object.Branch;
 import object.Commit;
@@ -6,7 +6,6 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import java.io.File;
 import java.util.*;

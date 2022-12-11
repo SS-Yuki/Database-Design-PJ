@@ -1,24 +1,9 @@
 package sonar;
 
-import Utils.GitUtil;
-import cn.edu.fudan.issue.core.process.RawIssueMatcher;
-import cn.edu.fudan.issue.entity.dbo.Location;
 import cn.edu.fudan.issue.entity.dbo.RawIssue;
-import cn.edu.fudan.issue.util.AnalyzerUtil;
-import cn.edu.fudan.issue.util.AstParserUtil;
-import common.IssueCaseType;
-import common.IssueInstanceStatus;
 import object.*;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.revwalk.RevCommit;
-import sonar.Sonar;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
-
-import static Utils.EnumUtil.RawIssueType2IssueCaseType;
 
 
 public class Test {

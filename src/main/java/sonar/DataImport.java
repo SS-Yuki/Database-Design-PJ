@@ -1,6 +1,6 @@
 package sonar;
 
-import Utils.GitUtil;
+import utils.GitUtil;
 import cn.edu.fudan.issue.core.process.RawIssueMatcher;
 import cn.edu.fudan.issue.entity.dbo.Location;
 import cn.edu.fudan.issue.entity.dbo.RawIssue;
@@ -19,7 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static Utils.EnumUtil.RawIssueType2IssueCaseType;
+import static utils.EnumUtil.RawIssueType2IssueCaseType;
 
 public class DataImport {
     String baseDir;
@@ -105,43 +105,29 @@ public class DataImport {
 
             for (RawIssue preRawIssue : preRawIssues) {
                 //新建issueCase
-                IssueCase issueCase = new IssueCase();
-                issueCase.setAppearCommitId(commitIdList[0]);
-                issueCase.setType(RawIssueType2IssueCaseType(preRawIssue.getType()));
-
+                IssueCase issueCase = new IssueCase(RawIssueType2IssueCaseType(preRawIssue.getType()), commitIdList[0]);
                 int issueCaseId = insertIssueCase(issueCase);
 
                 //新建issueInstance
-                IssueInstance issueInstance = new IssueInstance();
-                issueInstance.setCommitId(commitIdList[0]);
-                issueInstance.setFileName(preRawIssue.getFileName());
-                issueInstance.setLocations(preRawIssue.getLocations());
-                issueInstance.setStatus(IssueInstanceStatus.APPEAR);
-                issueInstance.setIssueCaseId(issueCaseId);
-
+                IssueInstance issueInstance = new IssueInstance(commitIdList[0], issueCaseId, IssueInstanceStatus.APPEAR, preRawIssue.getFileName());
                 int issueInstanceId = insertIssueInstance(issueInstance);
-
+                issueInstance.setIssueInstanceId(issueInstanceId);
+                preIssueInstance.add(issueInstance);
 
                 //新建Location
                 for (int j = 0; j < preRawIssue.getLocations().size(); j++) {
                     Location rawLocation = preRawIssue.getLocations().get(j);
-                    IssueLocation issueLocation = new IssueLocation();
-
-                    issueLocation.setIssueInstanceId(issueInstanceId);
-                    issueLocation.setOrder(j);
-                    issueLocation.setStartLine(rawLocation.getStartLine());
-                    issueLocation.setEndLine(rawLocation.getEndLine());
-
+                    IssueLocation issueLocation = new IssueLocation(issueInstanceId, j, rawLocation.getStartLine(), rawLocation.getEndLine());
                     insertIssueLocation(issueLocation);
                 }
             }
 
             for (int i = 1; i < commitIdList.length; i++) {
-
                 int commitId = commitIdList[i];
 
                 List<RawIssue> curRawIssues = sonar.getSonarResult(repositoryId, branchId, commitIdList[0]);
                 AnalyzerUtil.addExtraAttributeInRawIssues(curRawIssues, pathName);
+                List <IssueInstance> curIssueInstance = new ArrayList<>();
 //                curRawIssues.forEach(iss->System.out.println(iss.getFileName()));
 
 
@@ -150,57 +136,32 @@ public class DataImport {
                 for (RawIssue curRawIssue : curRawIssues) {
                     if (curRawIssue.getMappedRawIssue() == null) {
                         //新建issueCase
-                        IssueCase issueCase = new IssueCase();
-                        issueCase.setAppearCommitId(commitId);
-                        issueCase.setType(RawIssueType2IssueCaseType(curRawIssue.getType()));
-
+                        IssueCase issueCase = new IssueCase(RawIssueType2IssueCaseType(curRawIssue.getType()), commitId);
                         int issueCaseId = insertIssueCase(issueCase);
 
                         //新建issueInstance
-                        IssueInstance issueInstance = new IssueInstance();
-                        issueInstance.setCommitId(commitId);
-                        issueInstance.setFileName(curRawIssue.getFileName());
-                        issueInstance.setLocations(curRawIssue.getLocations());
-                        issueInstance.setStatus(IssueInstanceStatus.APPEAR);
-                        issueInstance.setIssueCaseId(issueCaseId);
-
+                        IssueInstance issueInstance = new IssueInstance(commitId, issueCaseId, IssueInstanceStatus.APPEAR, curRawIssue.getFileName());
                         int issueInstanceId = insertIssueInstance(issueInstance);
-
+                        issueInstance.setIssueInstanceId(issueInstanceId);
+                        curIssueInstance.add(issueInstance);
 
                         //新建Location
                         for (int j = 0; j < curRawIssue.getLocations().size(); j++) {
                             Location rawLocation = curRawIssue.getLocations().get(j);
-                            IssueLocation issueLocation = new IssueLocation();
-
-                            issueLocation.setIssueInstanceId(issueInstanceId);
-                            issueLocation.setOrder(j);
-                            issueLocation.setStartLine(rawLocation.getStartLine());
-                            issueLocation.setEndLine(rawLocation.getEndLine());
-
+                            IssueLocation issueLocation = new IssueLocation(issueInstanceId, j, rawLocation.getStartLine(), rawLocation.getEndLine());
                             insertIssueLocation(issueLocation);
                         }
                     } else {
                         //新建issueInstance到相应的issueCase
-                        IssueInstance issueInstance = new IssueInstance();
-                        issueInstance.setCommitId(commitId);
-                        issueInstance.setFileName(curRawIssue.getFileName());
-                        issueInstance.setLocations(curRawIssue.getLocations());
-                        issueInstance.setStatus(IssueInstanceStatus.APPEAR);
-                        issueInstance.setIssueCaseId(getIssueCaseIdbyMatch());
-
+                        IssueInstance issueInstance = new IssueInstance(commitId, getIssueCaseIdbyMatch(), IssueInstanceStatus.APPEAR, curRawIssue.getFileName());
                         int issueInstanceId = insertIssueInstance(issueInstance);
-
+                        issueInstance.setIssueInstanceId(issueInstanceId);
+                        curIssueInstance.add(issueInstance);
 
                         //新建Location
                         for (int j = 0; j < curRawIssue.getLocations().size(); j++) {
                             Location rawLocation = curRawIssue.getLocations().get(j);
-                            IssueLocation issueLocation = new IssueLocation();
-
-                            issueLocation.setIssueInstanceId(issueInstanceId);
-                            issueLocation.setOrder(j);
-                            issueLocation.setStartLine(rawLocation.getStartLine());
-                            issueLocation.setEndLine(rawLocation.getEndLine());
-
+                            IssueLocation issueLocation = new IssueLocation(issueInstanceId, j, rawLocation.getStartLine(), rawLocation.getEndLine());
                             insertIssueLocation(issueLocation);
                         }
                     }
@@ -209,12 +170,19 @@ public class DataImport {
                 for (int j = 0; j < preRawIssues.size(); j++) {
                     if (preRawIssues.get(j).getMappedRawIssue() == null) {
                         //已解决: 更新相应的issueCase
-                        int issueCaseId = lastInstances.get(j).getIssueCaseId();
+                        int issueCaseId = preIssueInstance.get(j).getIssueCaseId();
                         IssueCase issueCase = getIssueCasebyIssueCaseId(issueCaseId);
-                        issueCase.setSolveCommitId(lastInstances.get(j).getCommitId());
+                        issueCase.setSolveCommitId(preIssueInstance.get(j).getCommitId());
                         updateIssueCase(issueCase);
                     }
                 }
+
+                for (RawIssue curRawIssue : curRawIssues) {
+                    curRawIssue.resetMappedInfo();
+                }
+
+                preIssueInstance = curIssueInstance;
+                preRawIssues = curRawIssues;
 
             }
 

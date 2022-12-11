@@ -18,6 +18,16 @@ public class IssueInstance {
 
     List<Location> locations;
 
+    public IssueInstance(int commitId, int issueCaseId, IssueInstanceStatus status, String fileName) {
+        this.commitId = commitId;
+        this.issueCaseId = issueCaseId;
+        this.status = status;
+        this.fileName = fileName;
+    }
+
+    public IssueInstance() {
+    }
+
     public int getIssueInstanceId() {
         return issueInstanceId;
     }

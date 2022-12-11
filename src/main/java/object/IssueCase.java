@@ -1,26 +1,19 @@
 package object;
 
+import common.IssueCaseSeverity;
 import common.IssueCaseType;
 
-enum IssueCaseSeverity {
-    BLOCKER, MINOR, CRITICAL, INFO, MAJOR
-}
-
-enum IssueCaseStatus {
-    SOLVED, UNSOLVED
-}
 
 public class IssueCase {
     private int issueCaseId;
 
-    private IssueCaseSeverity severity;
+//    private IssueCaseSeverity severity;
     private IssueCaseType type;
 
     private int appearCommitId;
     private int solveCommitId;
 
-    public IssueCase(IssueCaseSeverity severity, IssueCaseType type, int appearCommitId) {
-        this.severity = severity;
+    public IssueCase(IssueCaseType type, int appearCommitId) {
         this.type = type;
         this.appearCommitId = appearCommitId;
     }
@@ -36,13 +29,13 @@ public class IssueCase {
         this.issueCaseId = issueCaseId;
     }
 
-    public IssueCaseSeverity getSeverity() {
-        return severity;
-    }
-
-    public void setSeverity(IssueCaseSeverity severity) {
-        this.severity = severity;
-    }
+//    public IssueCaseSeverity getSeverity() {
+//        return severity;
+//    }
+//
+//    public void setSeverity(IssueCaseSeverity severity) {
+//        this.severity = severity;
+//    }
 
     public IssueCaseType getType() {
         return type;

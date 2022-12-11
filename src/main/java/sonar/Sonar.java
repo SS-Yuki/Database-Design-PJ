@@ -1,5 +1,6 @@
 package sonar;
 
+import utils.CmdUtil;
 import cn.edu.fudan.issue.entity.dbo.Location;
 import cn.edu.fudan.issue.entity.dbo.RawIssue;
 import com.alibaba.fastjson.JSONArray;
@@ -22,7 +23,7 @@ public class Sonar {
         String componentKeys = "repositoryId" + repositoryId + "_" + "branchId" + branchId + "_" + "commitId" + commitId;
         String scannerStr = "sonar-scanner -D sonar.projectKey=" + componentKeys;
         System.out.println(componentKeys);
-        System.out.println(Cmd.run(cdStr + " && " + scannerStr));
+        System.out.println(CmdUtil.run(cdStr + " && " + scannerStr));
 //                Process process = Runtime.getRuntime().exec(cdStr + " && " + scannerStr);
 //                Process process = Runtime.getRuntime().exec(cdStr + " && dir");
 //                process.waitFor( 10, TimeUnit.SECONDS);

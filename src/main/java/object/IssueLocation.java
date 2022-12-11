@@ -7,6 +7,16 @@ public class IssueLocation {
     private int startLine;
     private int endLine;
 
+    public IssueLocation(int issueInstanceId, int order, int startLine, int endLine) {
+        this.issueInstanceId = issueInstanceId;
+        this.order = order;
+        this.startLine = startLine;
+        this.endLine = endLine;
+    }
+
+    public IssueLocation() {
+    }
+
     public int getIssueInstanceId() {
         return issueInstanceId;
     }
