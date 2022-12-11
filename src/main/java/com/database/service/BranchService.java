@@ -11,4 +11,5 @@ public interface BranchService {
      */
     int insert(Branch branch);
 
+    int getNumByRepoId(int repository_id);
 }

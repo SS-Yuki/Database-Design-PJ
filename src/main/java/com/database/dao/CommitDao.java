@@ -2,6 +2,8 @@ package com.database.dao;
 
 import com.database.object.Commit;
 
+import java.util.List;
+
 public interface CommitDao {
 
     /**
@@ -24,5 +26,12 @@ public interface CommitDao {
      * @return
      */
     Commit queryByHashAndBranchId(String hash, int branch_id);
+
+    /**
+     * 根据branch的id查找所有的commit
+     * @param branch_id
+     * @return
+     */
+    List<Commit> queryByBranchId(int branch_id);
 
 }

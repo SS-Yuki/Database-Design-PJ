@@ -11,4 +11,17 @@ public interface CommitService {
      */
     int insert(Commit commit);
 
+    /**
+     * 根据branch_id返回所有的commit_id
+     * @param branch_id
+     * @return
+     */
+    int[] getIddByBranchId(int branch_id);
+
+    /**
+     * 根据commit_id返回对应的commit_hash
+     * @param commit_id
+     * @return
+     */
+    String getHashById(int commit_id);
 }

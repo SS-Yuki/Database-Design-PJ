@@ -4,6 +4,8 @@ import com.database.dao.BranchDao;
 import com.database.object.Branch;
 import com.database.utils.JDBCUtil;
 
+import java.util.List;
+
 public class BranchDaoImpl implements BranchDao {
     @Override
     public void insert(Branch branch) {
@@ -21,5 +23,11 @@ public class BranchDaoImpl implements BranchDao {
     public Branch queryByNameAndRepoId(String name, int repository_id) {
         String sql = "select branch_id branchId, branch_name branchName, repository_id repositoryId from branch where branch_name = ? and repository_id = ?";
         return JDBCUtil.queryOne(Branch.class, sql, name, repository_id);
+    }
+
+    @Override
+    public List<Branch> queryByRepoId(int repository_id) {
+        String sql = "select branch_id branchId, branch_name branchName, repository_id repositoryId from branch where repository_id = ?";
+        return JDBCUtil.query(Branch.class, sql, repository_id);
     }
 }

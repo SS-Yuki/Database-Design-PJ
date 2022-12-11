@@ -2,6 +2,8 @@ package com.database.dao;
 
 import com.database.object.Branch;
 
+import java.util.List;
+
 public interface BranchDao {
 
     /**
@@ -24,4 +26,11 @@ public interface BranchDao {
      * @return
      */
     Branch queryByNameAndRepoId(String name, int repository_id);
+
+    /**
+     * 根据repository_id查询branch列表
+     * @param repository_id
+     * @return
+     */
+    List<Branch> queryByRepoId(int repository_id);
 }

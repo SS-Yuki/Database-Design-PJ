@@ -18,4 +18,9 @@ public class BranchServiceImpl implements BranchService {
         return queryBranch.getBranchId();
     }
 
+    @Override
+    public int getNumByRepoId(int repository_id) {
+        return branchDao.queryByRepoId(repository_id).size();
+    }
+
 }

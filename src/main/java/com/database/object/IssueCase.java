@@ -21,6 +21,20 @@ public class IssueCase {
     private int appearCommitId;
     private int solveCommitId;
 
+    public IssueCase(IssueCaseSeverity severity, IssueCaseType type, int appearCommitId) {
+        this.severity = severity;
+        this.type = type;
+        this.appearCommitId = appearCommitId;
+    }
+
+    public IssueCase(int issueCaseId, IssueCaseSeverity severity, IssueCaseType type, int appearCommitId, int solveCommitId) {
+        this.issueCaseId = issueCaseId;
+        this.severity = severity;
+        this.type = type;
+        this.appearCommitId = appearCommitId;
+        this.solveCommitId = solveCommitId;
+    }
+
     public int getIssueCaseId() {
         return issueCaseId;
     }
@@ -59,5 +73,16 @@ public class IssueCase {
 
     public void setSolveCommitId(int solveCommitId) {
         this.solveCommitId = solveCommitId;
+    }
+
+    @Override
+    public String toString() {
+        return "IssueCase{" +
+                "issueCaseId=" + issueCaseId +
+                ", severity=" + severity +
+                ", type=" + type +
+                ", appearCommitId=" + appearCommitId +
+                ", solveCommitId=" + solveCommitId +
+                '}';
     }
 }

@@ -8,7 +8,8 @@ public class JDBCTest {
     @Test
     public void testInsert() {
         String sql = "insert into repository (repository_name, base_dir) values (?, ?);";
-        JDBCUtil.update(sql, "test_name", "test_base_dir");
+        int id = JDBCUtil.update(sql, "hhh", "dddd");
+        System.out.println(id);
     }
 
 }

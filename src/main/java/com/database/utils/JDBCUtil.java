@@ -58,25 +58,32 @@ public class JDBCUtil {
      * @param sql
      * @param args
      */
-    public static void update(String sql, Object... args) {
+    public static int update(String sql, Object... args) {
         Connection connection = null;
         PreparedStatement statement = null;
+        int id = -1;
         try {
             // 1、获取连接
             connection = ConnectionUtil.getConnection();
             // 2、预编译sql语句
-            statement = connection.prepareStatement(sql);
+            statement = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
             // 3、填充sql占位符
             for (int i = 0; i < args.length; i++) {
                 statement.setObject(i + 1, args[i]);
             }
             // 4、执行sql语句
-            statement.execute();
+            statement.executeUpdate();
+            // 5、检索由于执行此 Statement 对象而创建的所有自动生成的键
+            ResultSet rs = statement.getGeneratedKeys();
+            if (rs.next()) {
+                id = rs.getInt(1);
+            }
         } catch (Exception e) {
             System.out.println(e.getMessage());
         } finally {
             ConnectionUtil.closeResource(connection, statement);
         }
+        return id;
     }
 
     /**
