@@ -1,6 +1,7 @@
 package object;
 
 import cn.edu.fudan.issue.entity.dbo.Location;
+import common.IssueInstanceStatus;
 
 import java.util.List;
 

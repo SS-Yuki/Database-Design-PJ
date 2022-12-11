@@ -1,5 +1,7 @@
 package object;
 
+import common.IssueCaseType;
+
 enum IssueCaseSeverity {
     BLOCKER, MINOR, CRITICAL, INFO, MAJOR
 }

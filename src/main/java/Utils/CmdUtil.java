@@ -1,9 +1,11 @@
+package Utils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
-public class Cmd {
+public class CmdUtil {
 
     public static void main(String str[]){
         try {
