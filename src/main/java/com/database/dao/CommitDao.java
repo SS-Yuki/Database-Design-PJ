@@ -1,0 +1,28 @@
+package com.database.dao;
+
+import com.database.object.Commit;
+
+public interface CommitDao {
+
+    /**
+     * 根据commit信息插入一个字段
+     * @param commit
+     */
+    void insert(Commit commit);
+
+    /**
+     * 根据commit的id查找一个commit
+     * @param id
+     * @return
+     */
+    Commit queryById(int id);
+
+    /**
+     * 根据commit的hash和分支id查找一个commit
+     * @param hash
+     * @param branch_id
+     * @return
+     */
+    Commit queryByHashAndBranchId(String hash, int branch_id);
+
+}

@@ -1,10 +1,24 @@
 package com.database.object;
 
 public class Repository {
-    private int repositoryId;
 
-    private String name;
-    private String url;
+    private int repositoryId;
+    private String repositoryName;
+    private String baseDir;
+
+    public Repository() {
+    }
+
+    public Repository(String repositoryName, String baseDir) {
+        this.repositoryName = repositoryName;
+        this.baseDir = baseDir;
+    }
+
+    public Repository(int repositoryId, String repositoryName, String baseDir) {
+        this.repositoryId = repositoryId;
+        this.repositoryName = repositoryName;
+        this.baseDir = baseDir;
+    }
 
     public int getRepositoryId() {
         return repositoryId;
@@ -14,19 +28,28 @@ public class Repository {
         this.repositoryId = repositoryId;
     }
 
-    public String getName() {
-        return name;
+    public String getRepositoryName() {
+        return repositoryName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setRepositoryName(String repositoryName) {
+        this.repositoryName = repositoryName;
     }
 
-    public String getUrl() {
-        return url;
+    public String getBaseDir() {
+        return baseDir;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setBaseDir(String baseDir) {
+        this.baseDir = baseDir;
+    }
+
+    @Override
+    public String toString() {
+        return "Repository{" +
+                "repositoryId=" + repositoryId +
+                ", repositoryName='" + repositoryName + '\'' +
+                ", baseDir='" + baseDir + '\'' +
+                '}';
     }
 }
