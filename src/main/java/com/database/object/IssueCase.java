@@ -1,5 +1,7 @@
 package com.database.object;
 
+import java.util.Date;
+
 enum IssueCaseSeverity {
     BLOCKER, MINOR, CRITICAL, INFO, MAJOR
 }
@@ -19,7 +21,9 @@ public class IssueCase {
     private IssueCaseType type;
 
     private int appearCommitId;
+    private Date appearTime;
     private int solveCommitId;
+    private Date solveTime;
 
     public IssueCase(IssueCaseSeverity severity, IssueCaseType type, int appearCommitId) {
         this.severity = severity;
@@ -73,6 +77,22 @@ public class IssueCase {
 
     public void setSolveCommitId(int solveCommitId) {
         this.solveCommitId = solveCommitId;
+    }
+
+    public Date getAppearTime() {
+        return appearTime;
+    }
+
+    public void setAppearTime(Date appearTime) {
+        this.appearTime = appearTime;
+    }
+
+    public Date getSolveTime() {
+        return solveTime;
+    }
+
+    public void setSolveTime(Date solveTime) {
+        this.solveTime = solveTime;
     }
 
     @Override

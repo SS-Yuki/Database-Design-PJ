@@ -5,6 +5,8 @@ import com.database.dao.impl.IssueInstanceDaoImpl;
 import com.database.object.IssueInstance;
 import com.database.service.IssueInstanceService;
 
+import java.util.List;
+
 public class IssueInstanceServiceImpl implements IssueInstanceService {
 
     private IssueInstanceDao issueInstanceDao = new IssueInstanceDaoImpl();
@@ -17,5 +19,10 @@ public class IssueInstanceServiceImpl implements IssueInstanceService {
     @Override
     public IssueInstance getInstById(int inst_id) {
         return issueInstanceDao.queryById(inst_id);
+    }
+
+    @Override
+    public List<IssueInstance> getInstByCommit(int commit) {
+        return issueInstanceDao.queryByCommit(commit);
     }
 }

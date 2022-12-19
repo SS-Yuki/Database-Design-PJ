@@ -4,7 +4,7 @@ import com.database.dao.RepositoryDao;
 import com.database.object.Repository;
 import com.database.utils.JDBCUtil;
 
-public class RepositoryDayImpl implements RepositoryDao {
+public class RepositoryDaoImpl implements RepositoryDao {
     @Override
     public void insert(Repository repository) {
         String sql = "insert into repository (repository_name, base_dir) values (?, ?);";
