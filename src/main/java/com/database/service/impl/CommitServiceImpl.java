@@ -21,7 +21,7 @@ public class CommitServiceImpl implements CommitService {
     }
 
     @Override
-    public int[] getIddByBranchId(int branch_id) {
+    public int[] getIdByBranchId(int branch_id) {
         List<Commit> commits = commitDao.queryByBranchId(branch_id);
         int[] ids = new int[commits.size()];
         for (int i = 0; i < commits.size(); i++) {

@@ -16,7 +16,7 @@ public interface CommitService {
      * @param branch_id
      * @return
      */
-    int[] getIddByBranchId(int branch_id);
+    int[] getIdByBranchId(int branch_id);
 
     /**
      * 根据commit_id返回对应的commit_hash

@@ -12,4 +12,6 @@ public interface IssueCaseService {
     IssueCase getCaseById(int case_id);
 
     List<IssueCase> getCaseByTime(Date time);
+
+    void update(IssueCase issueCase);
 }

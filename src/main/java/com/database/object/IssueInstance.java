@@ -1,8 +1,6 @@
 package com.database.object;
 
-enum IssueInstanceStatus {
-    APPEAR, DISAPPEAR
-}
+import com.database.common.IssueInstanceStatus;
 
 public class IssueInstance {
     private int issueInstanceId;
@@ -14,6 +12,13 @@ public class IssueInstance {
     private IssueInstanceStatus status;
 
     private String fileName;
+
+    public IssueInstance(int commitId, int issueCaseId, IssueInstanceStatus status, String fileName) {
+        this.commitId = commitId;
+        this.issueCaseId = issueCaseId;
+        this.status = status;
+        this.fileName = fileName;
+    }
 
     public int getIssueInstanceId() {
         return issueInstanceId;

@@ -1,4 +1,4 @@
-package com.database.service;
+package com.database.sonar;
 
 import java.util.Date;
 
@@ -10,6 +10,6 @@ public interface SonarService {
 
     void showCaseByTime(Date time);
 
-    boolean importRepository();
+    boolean importRepository(String baseDir, String pjName);
 
 }

@@ -1,7 +1,7 @@
 package com.database;
 
-import com.database.service.SonarService;
-import com.database.service.impl.SonarServiceImpl;
+import com.database.sonar.SonarService;
+import com.database.sonar.impl.SonarServiceImpl;
 
 import java.util.Scanner;
 
@@ -20,11 +20,10 @@ public class MainApplication {
                 case "commit": sonarService.showInstanceByCommit(0); break;
                 case "time": sonarService.showCaseByTime(null); break;
                 case "commiter": sonarService.showCaseByCommiter(""); break;
-                case "import": sonarService.importRepository(); break;
+                case "import": sonarService.importRepository("", ""); break;
                 case "exit": flag = false; break;
             }
         }
-
     }
 
     private static void printHelp() {

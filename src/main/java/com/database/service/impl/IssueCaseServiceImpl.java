@@ -26,4 +26,9 @@ public class IssueCaseServiceImpl implements IssueCaseService {
     public List<IssueCase> getCaseByTime(Date time) {
         return caseDao.queryByTime(time);
     }
+
+    @Override
+    public void update(IssueCase issueCase) {
+        caseDao.update(issueCase);
+    }
 }

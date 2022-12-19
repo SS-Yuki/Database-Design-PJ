@@ -4,6 +4,9 @@ import cn.edu.fudan.issue.entity.dbo.Location;
 import cn.edu.fudan.issue.entity.dbo.RawIssue;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.database.service.CommitService;
+import com.database.service.impl.CommitServiceImpl;
+
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
@@ -31,9 +34,63 @@ public class IssueUtil {
         }
     }
 
-    public static JSONObject getSonarIssueResults(String componentKeys) throws IOException {
+    //扫描单个commit
+    public static void scannerCommit(String pathName, int repositoryId, int branchId, int commitId) throws IOException {
+        String cdStr = "cmd /c cd " + pathName;
+        String componentKeys = "repositoryId" + repositoryId + "_" + "branchId" + branchId + "_" + "commitId" + commitId;
+        String scannerStr = "sonar-scanner -D sonar.projectKey=" + componentKeys;
+        System.out.println(componentKeys);
+        System.out.println(CmdUtil.run(cdStr + " && " + scannerStr));
+    }
 
-        String url_s = SEARCH_API + "?" + "componentKeys=" + componentKeys;
+    //根据Id 从云端获取所有的Json, 并解析成RawIssue
+    public static List<RawIssue> getSonarResult(int repositoryId, int branchId, int commitId) throws Exception {
+        List<RawIssue> resultRawIssues = new ArrayList<RawIssue>();
+
+        JSONObject sonarIssueResult = getSonarIssueResults("repositoryId" + repositoryId + "_" + "branchId" + branchId + "_" + "commitId" + commitId, 1);
+        //获取issue数量
+        int pageSize = 100;
+        int issueTotal = sonarIssueResult.getIntValue("total");
+        int pages = issueTotal % pageSize > 0 ? issueTotal / pageSize + 1 : issueTotal / pageSize;
+        for (int i = 1; i <= pages; i++) {
+            JSONObject sonarResult = getSonarIssueResults("repositoryId" + repositoryId + "_" + "branchId" + branchId + "_" + "commitId" + commitId, i);
+            JSONArray sonarRawIssues = sonarResult.getJSONArray("issues");
+
+            for (int j = 0; j < sonarRawIssues.size(); j++) {
+                JSONObject sonarIssue = sonarRawIssues.getJSONObject(j);
+
+                String component = sonarIssue.getString("component");
+                if (!component.endsWith(".java")) {
+                    continue;
+                }
+
+                List<Location> locations = getLocations(sonarIssue);
+                if (locations.isEmpty()) {
+                    continue;
+                }
+
+                RawIssue rawIssue = new RawIssue();
+                CommitService commitService = new CommitServiceImpl();
+
+                rawIssue.setType(sonarIssue.getString("type"));
+                rawIssue.setFileName(getFileName(sonarIssue));
+                rawIssue.setDetail(sonarIssue.getString("message"));
+                rawIssue.setLocations(locations);
+                rawIssue.setCommitId(commitService.getHashById(commitId));
+
+                String rawIssueUuid = RawIssue.generateRawIssueUUID(rawIssue);
+                rawIssue.setUuid(rawIssueUuid);
+
+                resultRawIssues.add(rawIssue);
+            }
+        }
+
+        return resultRawIssues;
+    }
+
+    private static JSONObject getSonarIssueResults(String componentKeys, int page) throws IOException {
+
+        String url_s = SEARCH_API + "?" + "componentKeys=" + componentKeys + "&page=" + page;
         URL url = new URL(url_s);
 
         URLConnection connection = url.openConnection();
@@ -68,7 +125,7 @@ public class IssueUtil {
         return location;
     }
 
-    public List<Location> getLocations(JSONObject issue, String repoPath) throws Exception {
+    public static List<Location> getLocations(JSONObject issue) throws Exception {
         int startLine = 0;
         int endLine = 0;
         String sonarPath;
@@ -124,7 +181,24 @@ public class IssueUtil {
                 }
             }
         }
-
         return locations;
     }
+
+    //解析Json数据中的FileName
+    private static String getFileName(JSONObject issue) {
+        String sonarPath;
+        String[] sonarComponents;
+        String filePath = null;
+
+        sonarPath = issue.getString("component");
+        if (sonarPath != null) {
+            sonarComponents = sonarPath.split(":");
+            if (sonarComponents.length >= 2) {
+                filePath = sonarComponents[sonarComponents.length - 1];
+            }
+        }
+
+        return filePath;
+    }
+
 }

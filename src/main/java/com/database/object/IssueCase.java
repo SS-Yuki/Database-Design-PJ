@@ -1,39 +1,23 @@
 package com.database.object;
 
-import java.util.Date;
+import com.database.common.IssueCaseType;
 
-enum IssueCaseSeverity {
-    BLOCKER, MINOR, CRITICAL, INFO, MAJOR
-}
-
-enum IssueCaseType {
-    BUG, VULNERABILITY, CODE_SMELL
-}
-
-enum IssueCaseStatus {
-    SOLVED, UNSOLVED
-}
 
 public class IssueCase {
     private int issueCaseId;
 
-    private IssueCaseSeverity severity;
     private IssueCaseType type;
 
     private int appearCommitId;
-    private Date appearTime;
     private int solveCommitId;
-    private Date solveTime;
 
-    public IssueCase(IssueCaseSeverity severity, IssueCaseType type, int appearCommitId) {
-        this.severity = severity;
+    public IssueCase(IssueCaseType type, int appearCommitId) {
         this.type = type;
         this.appearCommitId = appearCommitId;
     }
 
-    public IssueCase(int issueCaseId, IssueCaseSeverity severity, IssueCaseType type, int appearCommitId, int solveCommitId) {
+    public IssueCase(int issueCaseId, IssueCaseType type, int appearCommitId, int solveCommitId) {
         this.issueCaseId = issueCaseId;
-        this.severity = severity;
         this.type = type;
         this.appearCommitId = appearCommitId;
         this.solveCommitId = solveCommitId;
@@ -45,14 +29,6 @@ public class IssueCase {
 
     public void setIssueCaseId(int issueCaseId) {
         this.issueCaseId = issueCaseId;
-    }
-
-    public IssueCaseSeverity getSeverity() {
-        return severity;
-    }
-
-    public void setSeverity(IssueCaseSeverity severity) {
-        this.severity = severity;
     }
 
     public IssueCaseType getType() {
@@ -79,27 +55,10 @@ public class IssueCase {
         this.solveCommitId = solveCommitId;
     }
 
-    public Date getAppearTime() {
-        return appearTime;
-    }
-
-    public void setAppearTime(Date appearTime) {
-        this.appearTime = appearTime;
-    }
-
-    public Date getSolveTime() {
-        return solveTime;
-    }
-
-    public void setSolveTime(Date solveTime) {
-        this.solveTime = solveTime;
-    }
-
     @Override
     public String toString() {
         return "IssueCase{" +
                 "issueCaseId=" + issueCaseId +
-                ", severity=" + severity +
                 ", type=" + type +
                 ", appearCommitId=" + appearCommitId +
                 ", solveCommitId=" + solveCommitId +
