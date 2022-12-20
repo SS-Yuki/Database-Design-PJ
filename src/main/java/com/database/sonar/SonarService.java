@@ -4,7 +4,9 @@ import java.util.Date;
 
 public interface SonarService {
 
-    void showInstanceByCommit(int commit_id);
+    void showInfoByCommit(int commit_id);
+
+    void showLatestInfo(int repositoryId, String branchName);
 
     void showCaseByCommiter(String commiter);
 

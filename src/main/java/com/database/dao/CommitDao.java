@@ -34,4 +34,6 @@ public interface CommitDao {
      */
     List<Commit> queryByBranchId(int branch_id);
 
+    int queryLatestIdByBranchId(int branch_id);
+
 }

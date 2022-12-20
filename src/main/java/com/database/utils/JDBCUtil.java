@@ -214,4 +214,36 @@ public class JDBCUtil {
         }
         return null;
     }
+
+    /**
+     * 查询某一单个数据
+     * @param sql
+     * @param args
+     * @param <E>
+     * @return
+     */
+    public static <E> E getValue(String sql, Object... args) {
+        Connection connection = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            connection = ConnectionUtil.getConnection();
+            ps = connection.prepareStatement(sql);
+            // 填充占位符
+            for(int i = 0; i < args.length; i++) {
+                ps.setObject(i + 1, args[i]);
+            }
+            // 执行sql语句
+            rs = ps.executeQuery();
+            // 得到结果
+            if(rs.next()) {
+                return (E) rs.getObject(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            ConnectionUtil.closeResource(null, ps, rs);
+        }
+        return null;
+    }
 }

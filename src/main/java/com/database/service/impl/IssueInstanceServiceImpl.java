@@ -5,6 +5,7 @@ import com.database.dao.impl.IssueInstanceDaoImpl;
 import com.database.object.IssueInstance;
 import com.database.service.IssueInstanceService;
 
+import java.util.Date;
 import java.util.List;
 
 public class IssueInstanceServiceImpl implements IssueInstanceService {
@@ -25,4 +26,10 @@ public class IssueInstanceServiceImpl implements IssueInstanceService {
     public List<IssueInstance> getInstByCommit(int commit) {
         return issueInstanceDao.queryByCommit(commit);
     }
+
+    @Override
+    public Date getAppearTimeById(int inst_id) {
+        return issueInstanceDao.queryAppearTimeById(inst_id);
+    }
+
 }

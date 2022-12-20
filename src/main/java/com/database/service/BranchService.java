@@ -12,4 +12,6 @@ public interface BranchService {
     int insert(Branch branch);
 
     int getNumByRepoId(int repository_id);
+
+    int getIdByNameAndRepoId(int repository_id, String name);
 }

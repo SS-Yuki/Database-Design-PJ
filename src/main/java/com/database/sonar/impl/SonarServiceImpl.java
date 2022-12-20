@@ -31,10 +31,38 @@ public class SonarServiceImpl implements SonarService {
     private IssueLocationService locationService = new IssueLocationServiceImpl();
 
     @Override
-    public void showInstanceByCommit(int commit) {
+    public void showInfoByCommit(int commit) {
+        // 1、统计该版本的issue instance，并获取对应的location信息
         List<IssueInstance> instances = instanceService.getInstByCommit(commit);
-        System.out.println("该版本下的缺陷：");
-        instances.forEach(issueInstance -> System.out.println(issueInstance));
+        Map<IssueInstance, List<IssueLocation>> instanceListMap = new HashMap<>();
+        instances.forEach(issueInstance -> {
+            // 查找对应的location
+            List<IssueLocation> locations = locationService.getLocationByInstId(issueInstance.getIssueInstanceId());
+            instanceListMap.put(issueInstance, locations);
+        });
+        System.out.println("该版本中共有静态缺陷个数：" + instances.size());
+        System.out.println("按类型分类：");
+        // TODO: 2、按类型分类
+
+        // 3、按照存续时长排序
+        System.out.println("按缺陷存在时间排序：");
+        List<Map.Entry<IssueInstance, Date>> sortInstances = sortByTime(instances);
+    }
+
+    @Override
+    public void showLatestInfo(int repositoryId, String branchName) {
+        // 显示指定分支最新版本的缺陷信息
+        // 1、查找分支id
+        int branchId = branchService.getIdByNameAndRepoId(repositoryId, branchName);
+        // 若返回id为0代表该分支不存在，return
+        if (branchId == 0) {
+            System.out.println("分支不存在！");
+            return;
+        }
+        // 2、获取该分支的最新版本id
+        int commitId = commitService.getLatestByBranchId(branchId);
+        // 3、获取特定版本下的信息
+        showInfoByCommit(commitId);
     }
 
     @Override
@@ -244,5 +272,21 @@ public class SonarServiceImpl implements SonarService {
         return res;
     }
 
+    private List<Map.Entry<IssueInstance, Date>> sortByTime(List<IssueInstance> instances) {
+        Map<IssueInstance, Date> map = new HashMap<>();
+        // 完成instance与time的匹配
+        instances.forEach(issueInstance -> {
+            // 1、查询对应的appear time
+            Date time = instanceService.getAppearTimeById(issueInstance.getIssueInstanceId());
+            // 2、将该instance与其date入map
+            map.put(issueInstance, time);
+        });
+        // 按照time进行排序
+        List<Map.Entry<IssueInstance, Date>> result = new ArrayList<>(map.entrySet());
+        Collections.sort(result, (a, b) -> {
+            return a.getValue().compareTo(b.getValue());
+        });
+        return result;
+    }
 }
 

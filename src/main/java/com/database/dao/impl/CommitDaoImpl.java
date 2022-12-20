@@ -30,4 +30,11 @@ public class CommitDaoImpl implements CommitDao {
         String sql = "select commit_id commitId, commit_hash commitHash, commit_time commitTime, commiter, branch_id branchId from commit where branch_id = ?";
         return JDBCUtil.query(Commit.class, sql, branch_id);
     }
+
+    @Override
+    public int queryLatestIdByBranchId(int branch_id) {
+        // TODO:
+        String sql = "";
+        return 0;
+    }
 }
