@@ -8,7 +8,7 @@ public interface SonarService {
 
     void showCaseByCommiter(String commiter);
 
-    void showCaseByTime(Date time);
+    void showCaseByTime(Date begin, Date end);
 
     boolean importRepository(String baseDir, String pjName);
 

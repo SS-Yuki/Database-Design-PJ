@@ -27,8 +27,26 @@ public class IssueCaseDaoImpl implements IssueCaseDao {
     }
 
     @Override
-    public List<IssueCase> queryByTime(Date time) {
-        String sql = "select case_id caseId, type, severity, appear_commit_id appearCommitId, solve_commit_id solveCommitId where appear_time >= ? or solve_time >= ?";
-        return JDBCUtil.query(IssueCase.class, sql, time, time);
+    public List<IssueCase> queryByAppearCommiter(String commiter) {
+        String sql = "select case_id caseId, type, appear_commit_id appearCommitId, solve_commit_id solveCommitId from issuecase join commit c on c.commit_id = issuecase.appear_commit_id where commiter = ?";
+        return JDBCUtil.query(IssueCase.class, sql, commiter);
+    }
+
+    @Override
+    public List<IssueCase> queryBySolveCommiter(String commiter) {
+        String sql = "select case_id caseId, type, appear_commit_id appearCommitId, solve_commit_id solveCommitId from issuecase join commit c on c.commit_id = issuecase.solve_commit_id where commiter = ?";
+        return JDBCUtil.query(IssueCase.class, sql, commiter);
+    }
+
+    @Override
+    public List<IssueCase> queryByAppearTime(Date begin, Date end) {
+        String sql = "select case_id caseId, type, appear_commit_id appearCommitId, solve_commit_id solveCommitId from issuecase join commit c on c.commit_id = issuecase.appear_commit_id where commit_time > ? and commit_time < ?";
+        return JDBCUtil.query(IssueCase.class, sql, begin, end);
+    }
+
+    @Override
+    public List<IssueCase> queryBySolveTime(Date begin, Date end) {
+        String sql = "select case_id caseId, type, appear_commit_id appearCommitId, solve_commit_id solveCommitId from issuecase join commit c on c.commit_id = issuecase.solve_commit_id where commit_time > ? and commit_time < ?";
+        return null;
     }
 }

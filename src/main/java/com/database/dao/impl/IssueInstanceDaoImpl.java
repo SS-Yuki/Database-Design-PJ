@@ -15,12 +15,14 @@ public class IssueInstanceDaoImpl implements IssueInstanceDao {
 
     @Override
     public IssueInstance queryById(int id) {
-        return null;
+        String sql = "select inst_id issueInstanceId, case_id issueCaseId, commit_id commitId, status, file_name fileName from issueinstance where inst_id = ?";
+        return JDBCUtil.queryOne(IssueInstance.class, sql, id);
     }
 
     @Override
     public List<IssueInstance> queryByCommit(int commit) {
-        return null;
+        String sql = "select inst_id issueInstanceId, case_id issueCaseId, commit_id commitId, status, file_name fileName from issueinstance where commit_id = ?";
+        return JDBCUtil.query(IssueInstance.class, sql, commit);
     }
 
 }

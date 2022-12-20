@@ -33,33 +33,31 @@ public class SonarServiceImpl implements SonarService {
     @Override
     public void showInstanceByCommit(int commit) {
         List<IssueInstance> instances = instanceService.getInstByCommit(commit);
+        System.out.println("该版本下的缺陷：");
         instances.forEach(issueInstance -> System.out.println(issueInstance));
     }
 
     @Override
     public void showCaseByCommiter(String commiter) {
-
+        // 查找该commiter引入的
+        List<IssueCase> appear = caseService.getCaseByAppearCommiter(commiter);
+        System.out.println("由该commiter引入的：");
+        appear.forEach(issueCase -> System.out.println(issueCase));
+        // 查找该commiter解决的
+        List<IssueCase> solve = caseService.getCaseBySolveCommiter(commiter);
+        System.out.println("由该commiter解决的：");
+        solve.forEach(issueCase -> System.out.println(issueCase));
     }
 
     @Override
-    public void showCaseByTime(Date time) {
-        List<IssueCase> cases = caseService.getCaseByTime(time);
-        // 指定时间后引入的
-        List<IssueCase> appear = new ArrayList<>();
-        // 指定时间后解决的
-        List<IssueCase> solve = new ArrayList<>();
-        cases.forEach(issueCase -> {
-            // appear time > time
-            // TODO：处理引入和解决时间的问题
-//            if (issueCase.getAppearTime().after(time)) appear.add(issueCase);
-//            // solve time > time
-//            if (issueCase.getSolveTime().after(time)) solve.add(issueCase);
-        });
-        // 输出引入的
-        System.out.println("指定时间后引入的：");
+    public void showCaseByTime(Date begin, Date end) {
+        // 指定时间段内引入的
+        List<IssueCase> appear = caseService.getCaseByAppearTime(begin, end);
+        System.out.println("该时间段内引入的：");
         appear.forEach(issueCase -> System.out.println(issueCase));
-        // 输出解决的
-        System.out.println("指定时间后解决的：");
+        // 指定时间段内解决的
+        List<IssueCase> solve = caseService.getCaseBySolveTime(begin, end);
+        System.out.println("该时间段内解决的：");
         solve.forEach(issueCase -> System.out.println(issueCase));
     }
 

@@ -13,5 +13,12 @@ public interface IssueCaseDao {
 
     void update(IssueCase issueCase);
 
-    List<IssueCase> queryByTime(Date time);
+    List<IssueCase> queryByAppearCommiter(String commiter);
+
+    List<IssueCase> queryBySolveCommiter(String commiter);
+
+    List<IssueCase> queryByAppearTime(Date begin, Date end);
+
+    List<IssueCase> queryBySolveTime(Date begin, Date end);
+
 }

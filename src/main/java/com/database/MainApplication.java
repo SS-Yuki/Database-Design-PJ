@@ -18,7 +18,8 @@ public class MainApplication {
             switch (command) {
                 case "help": printHelp(); break;
                 case "commit": sonarService.showInstanceByCommit(0); break;
-                case "time": sonarService.showCaseByTime(null); break;
+                case "time": sonarService.showCaseByTime(null, null); break;
+                // TODO: 显示由case修改为instance，引入则显示引入的版本，解决则显示解决的版本
                 case "commiter": sonarService.showCaseByCommiter(""); break;
                 case "import": sonarService.importRepository("", ""); break;
                 case "exit": flag = false; break;

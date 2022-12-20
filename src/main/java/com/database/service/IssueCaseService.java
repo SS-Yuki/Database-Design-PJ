@@ -11,7 +11,13 @@ public interface IssueCaseService {
 
     IssueCase getCaseById(int case_id);
 
-    List<IssueCase> getCaseByTime(Date time);
-
     void update(IssueCase issueCase);
+
+    List<IssueCase> getCaseByAppearCommiter(String appearCommiter);
+
+    List<IssueCase> getCaseBySolveCommiter(String solveCommiter);
+
+    List<IssueCase> getCaseByAppearTime(Date begin, Date end);
+
+    List<IssueCase> getCaseBySolveTime(Date begin, Date end);
 }

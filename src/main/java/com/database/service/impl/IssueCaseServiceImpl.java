@@ -23,12 +23,27 @@ public class IssueCaseServiceImpl implements IssueCaseService {
     }
 
     @Override
-    public List<IssueCase> getCaseByTime(Date time) {
-        return caseDao.queryByTime(time);
+    public void update(IssueCase issueCase) {
+        caseDao.update(issueCase);
     }
 
     @Override
-    public void update(IssueCase issueCase) {
-        caseDao.update(issueCase);
+    public List<IssueCase> getCaseByAppearCommiter(String appearCommiter) {
+        return caseDao.queryByAppearCommiter(appearCommiter);
+    }
+
+    @Override
+    public List<IssueCase> getCaseBySolveCommiter(String solveCommiter) {
+        return caseDao.queryBySolveCommiter(solveCommiter);
+    }
+
+    @Override
+    public List<IssueCase> getCaseByAppearTime(Date begin, Date end) {
+        return caseDao.queryByAppearTime(begin, end);
+    }
+
+    @Override
+    public List<IssueCase> getCaseBySolveTime(Date begin, Date end) {
+        return caseDao.queryBySolveTime(begin, end);
     }
 }
