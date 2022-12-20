@@ -21,4 +21,22 @@ public class EnumUtil {
         }
         return issueCaseType;
     }
+
+    public static IssueCaseType Int2IssueCaseType(int type) {
+        IssueCaseType issueCaseType = IssueCaseType.BUG;
+        switch (type) {
+            case 1:
+                issueCaseType = IssueCaseType.BUG;
+                break;
+            case 2:
+                issueCaseType = IssueCaseType.CODE_SMELL;
+                break;
+            case 3:
+                issueCaseType = IssueCaseType.VULNERABILITY;
+                break;
+            default:
+                break;
+        }
+        return issueCaseType;
+    }
 }

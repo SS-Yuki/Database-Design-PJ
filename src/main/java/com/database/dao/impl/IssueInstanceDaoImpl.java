@@ -1,7 +1,9 @@
 package com.database.dao.impl;
 
+import com.database.common.IssueCaseType;
 import com.database.dao.IssueInstanceDao;
 import com.database.object.IssueInstance;
+import com.database.utils.EnumUtil;
 import com.database.utils.JDBCUtil;
 
 import java.util.Date;
@@ -33,6 +35,15 @@ public class IssueInstanceDaoImpl implements IssueInstanceDao {
                 "join issueinstance i2 on i.case_id = i2.case_id\n" +
                 "where i2.inst_id = ?";
         return JDBCUtil.getValue(sql, id);
+    }
+
+    @Override
+    public IssueCaseType queryTypeById(int id) {
+        String sql = "select type from issuecase\n" +
+                "join issueinstance i on issuecase.case_id = i.case_id\n" +
+                "where inst_id = ?";
+        Number type = JDBCUtil.getValue(sql, id);
+        return EnumUtil.Int2IssueCaseType(type.intValue());
     }
 
 }

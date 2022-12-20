@@ -13,5 +13,7 @@ public interface BranchService {
 
     int getNumByRepoId(int repository_id);
 
+    int[] getIdByRepoId(int repository_id);
+
     int getIdByNameAndRepoId(int repository_id, String name);
 }

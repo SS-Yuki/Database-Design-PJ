@@ -1,5 +1,6 @@
 package com.database.dao;
 
+import com.database.common.IssueCaseType;
 import com.database.object.IssueInstance;
 
 import java.util.Date;
@@ -14,4 +15,6 @@ public interface IssueInstanceDao {
     List<IssueInstance> queryByCommit(int commit);
 
     Date queryAppearTimeById(int id);
+
+    IssueCaseType queryTypeById(int id);
 }

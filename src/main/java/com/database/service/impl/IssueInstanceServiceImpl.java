@@ -1,5 +1,6 @@
 package com.database.service.impl;
 
+import com.database.common.IssueCaseType;
 import com.database.dao.IssueInstanceDao;
 import com.database.dao.impl.IssueInstanceDaoImpl;
 import com.database.object.IssueInstance;
@@ -30,6 +31,11 @@ public class IssueInstanceServiceImpl implements IssueInstanceService {
     @Override
     public Date getAppearTimeById(int inst_id) {
         return issueInstanceDao.queryAppearTimeById(inst_id);
+    }
+
+    @Override
+    public IssueCaseType getTypeById(int inst_id) {
+        return issueInstanceDao.queryTypeById(inst_id);
     }
 
 }

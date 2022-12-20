@@ -5,6 +5,7 @@ import cn.edu.fudan.issue.entity.dbo.Location;
 import cn.edu.fudan.issue.entity.dbo.RawIssue;
 import cn.edu.fudan.issue.util.AnalyzerUtil;
 import cn.edu.fudan.issue.util.AstParserUtil;
+import com.database.common.IssueCaseType;
 import com.database.common.IssueInstanceStatus;
 import com.database.object.*;
 import com.database.service.*;
@@ -41,12 +42,14 @@ public class SonarServiceImpl implements SonarService {
             instanceListMap.put(issueInstance, locations);
         });
         System.out.println("该版本中共有静态缺陷个数：" + instances.size());
+        // 2、按类型分类
         System.out.println("按类型分类：");
-        // TODO: 2、按类型分类
+        Map<IssueCaseType, List<IssueInstance>> classifyInstances = classifyByType(instances);
 
         // 3、按照存续时长排序
         System.out.println("按缺陷存在时间排序：");
         List<Map.Entry<IssueInstance, Date>> sortInstances = sortByTime(instances);
+
     }
 
     @Override
@@ -65,17 +68,7 @@ public class SonarServiceImpl implements SonarService {
         showInfoByCommit(commitId);
     }
 
-    @Override
-    public void showCaseByCommiter(String commiter) {
-        // 查找该commiter引入的
-        List<IssueCase> appear = caseService.getCaseByAppearCommiter(commiter);
-        System.out.println("由该commiter引入的：");
-        appear.forEach(issueCase -> System.out.println(issueCase));
-        // 查找该commiter解决的
-        List<IssueCase> solve = caseService.getCaseBySolveCommiter(commiter);
-        System.out.println("由该commiter解决的：");
-        solve.forEach(issueCase -> System.out.println(issueCase));
-    }
+    // TODO: 指定版本的引入和解决情况
 
     @Override
     public void showCaseByTime(Date begin, Date end) {
@@ -86,6 +79,18 @@ public class SonarServiceImpl implements SonarService {
         // 指定时间段内解决的
         List<IssueCase> solve = caseService.getCaseBySolveTime(begin, end);
         System.out.println("该时间段内解决的：");
+        solve.forEach(issueCase -> System.out.println(issueCase));
+    }
+
+    @Override
+    public void showCaseByCommiter(String commiter) {
+        // 查找该commiter引入的
+        List<IssueCase> appear = caseService.getCaseByAppearCommiter(commiter);
+        System.out.println("由该commiter引入的：");
+        appear.forEach(issueCase -> System.out.println(issueCase));
+        // 查找该commiter解决的
+        List<IssueCase> solve = caseService.getCaseBySolveCommiter(commiter);
+        System.out.println("由该commiter解决的：");
         solve.forEach(issueCase -> System.out.println(issueCase));
     }
 
@@ -129,8 +134,8 @@ public class SonarServiceImpl implements SonarService {
 
                     // 3、对当前入库的commit代码进行扫描
                     String commitHash = commitInsert.getCommitHash();
-                    // TODO: 切换扫描的版本commit
-
+                    // 切换扫描的版本commit
+                    git.checkout().setCreateBranch(false).setName(commitHash);
                     IssueUtil.scannerCommit(commitHash, repositoryId, branchId, commitId);
                 }
             }
@@ -150,11 +155,12 @@ public class SonarServiceImpl implements SonarService {
     private void importIssue(int repositoryId, String pathName) throws Exception {
         // 前面已经将仓库的元信息入库，该函数将issue case、instance与location入库
         // 确定仓库分支的数目
-        int branchNum = branchService.getNumByRepoId(repositoryId);
+        int[] branchIds = branchService.getIdByRepoId(repositoryId);
         // 遍历分支，逐分支逐commit入库issue
-        // TODO: 这里为什么可以直接branch从0自增？？
-        for (int branchId = 0; branchId < branchNum; branchId++) {
+        for (int _i = 0; _i < branchIds.length; _i++) {
+            int branchId = branchIds[_i];
             // 获取该分支下的所有commit id（这里是由我们维护的id）
+            // TODO: 这里需要按照父子关系排序
             int[] commitIdList = commitService.getIdByBranchId(branchId);
             // 先读出该分支下第一个commit的issue，入库instance和case
             List<RawIssue> preRawIssues = IssueUtil.getSonarResult(repositoryId, branchId, commitIdList[0]);
@@ -270,6 +276,18 @@ public class SonarServiceImpl implements SonarService {
             }
         }
         return res;
+    }
+
+    private Map<IssueCaseType, List<IssueInstance>> classifyByType(List<IssueInstance> instances) {
+        Map<IssueCaseType, List<IssueInstance>> map = new HashMap<>();
+        map.put(IssueCaseType.BUG, new ArrayList<>());
+        map.put(IssueCaseType.CODE_SMELL, new ArrayList<>());
+        map.put(IssueCaseType.VULNERABILITY, new ArrayList<>());
+        instances.forEach(issueInstance -> {
+            IssueCaseType type = instanceService.getTypeById(issueInstance.getIssueInstanceId());
+            map.get(type).add(issueInstance);
+        });
+        return map;
     }
 
     private List<Map.Entry<IssueInstance, Date>> sortByTime(List<IssueInstance> instances) {

@@ -1,5 +1,6 @@
 package com.database.service;
 
+import com.database.common.IssueCaseType;
 import com.database.object.IssueInstance;
 
 import java.util.Date;
@@ -14,5 +15,7 @@ public interface IssueInstanceService {
     List<IssueInstance> getInstByCommit(int commit);
 
     Date getAppearTimeById(int inst_id);
+
+    IssueCaseType getTypeById(int inst_id);
 
 }

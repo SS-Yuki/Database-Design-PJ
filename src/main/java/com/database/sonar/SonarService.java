@@ -8,9 +8,9 @@ public interface SonarService {
 
     void showLatestInfo(int repositoryId, String branchName);
 
-    void showCaseByCommiter(String commiter);
-
     void showCaseByTime(Date begin, Date end);
+
+    void showCaseByCommiter(String commiter);
 
     boolean importRepository(String baseDir, String pjName);
 
