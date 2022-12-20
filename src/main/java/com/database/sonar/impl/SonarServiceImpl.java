@@ -36,19 +36,31 @@ public class SonarServiceImpl implements SonarService {
         // 1、统计该版本的issue instance，并获取对应的location信息
         List<IssueInstance> instances = instanceService.getInstByCommit(commit);
         Map<IssueInstance, List<IssueLocation>> instanceListMap = new HashMap<>();
+        Map<IssueInstance, Date> introduceTimeMap = new HashMap<>();
+        Map<IssueInstance, IssueCaseType> typeMap = new HashMap<>();
         instances.forEach(issueInstance -> {
             // 查找对应的location
             List<IssueLocation> locations = locationService.getLocationByInstId(issueInstance.getIssueInstanceId());
             instanceListMap.put(issueInstance, locations);
+            // 查找对应的appear time
+            Date appearTime = instanceService.getAppearTimeById(issueInstance.getIssueInstanceId());
+            introduceTimeMap.put(issueInstance, appearTime);
+            // 查找对应的type
+            IssueCaseType type = instanceService.getTypeById(issueInstance.getIssueInstanceId());
+            typeMap.put(issueInstance, type);
         });
         System.out.println("该版本中共有静态缺陷个数：" + instances.size());
-        // 2、按类型分类
-        System.out.println("按类型分类：");
-        Map<IssueCaseType, List<IssueInstance>> classifyInstances = classifyByType(instances);
+        instances.forEach(issueInstance -> {
+            System.out.println("缺陷实例id: {}，缺陷类型{}，引入时间{}，缺陷所在文件{}，缺陷位置{}");
+        });
 
+        // 2、按类型分类
+        Map<IssueCaseType, List<IssueInstance>> classifyInstances = classifyByType(instances);
+        System.out.println("按类型分类：");
+        
         // 3、按照存续时长排序
+        List<Map.Entry<IssueInstance, Date>> sortInstances = sortByTime(introduceTimeMap);
         System.out.println("按缺陷存在时间排序：");
-        List<Map.Entry<IssueInstance, Date>> sortInstances = sortByTime(instances);
 
     }
 
@@ -290,15 +302,7 @@ public class SonarServiceImpl implements SonarService {
         return map;
     }
 
-    private List<Map.Entry<IssueInstance, Date>> sortByTime(List<IssueInstance> instances) {
-        Map<IssueInstance, Date> map = new HashMap<>();
-        // 完成instance与time的匹配
-        instances.forEach(issueInstance -> {
-            // 1、查询对应的appear time
-            Date time = instanceService.getAppearTimeById(issueInstance.getIssueInstanceId());
-            // 2、将该instance与其date入map
-            map.put(issueInstance, time);
-        });
+    private List<Map.Entry<IssueInstance, Date>> sortByTime(Map<IssueInstance, Date> map) {
         // 按照time进行排序
         List<Map.Entry<IssueInstance, Date>> result = new ArrayList<>(map.entrySet());
         Collections.sort(result, (a, b) -> {
