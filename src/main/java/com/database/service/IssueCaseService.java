@@ -1,5 +1,6 @@
 package com.database.service;
 
+import com.database.object.Commit;
 import com.database.object.IssueCase;
 
 import java.util.Date;
@@ -13,6 +14,10 @@ public interface IssueCaseService {
 
     void update(IssueCase issueCase);
 
+    List<IssueCase> getCaseByAppearCommitId(int commitId);
+
+    List<IssueCase> getCaseBySolveCommitId(int commitId);
+
     List<IssueCase> getCaseByAppearCommiter(String appearCommiter);
 
     List<IssueCase> getCaseBySolveCommiter(String solveCommiter);
@@ -20,4 +25,11 @@ public interface IssueCaseService {
     List<IssueCase> getCaseByAppearTime(Date begin, Date end);
 
     List<IssueCase> getCaseBySolveTime(Date begin, Date end);
+
+    List<IssueCase> getCaseByDurationTime(Long duration);
+
+    Commit getAppearCommitById(int caseId);
+
+    Commit getSolveCommitById(int caseId);
+
 }

@@ -32,40 +32,13 @@ public class SonarServiceImpl implements SonarService {
     private IssueLocationService locationService = new IssueLocationServiceImpl();
 
     @Override
-    public void showInfoByCommit(int commit) {
-        // 1、统计该版本的issue instance，并获取对应的location信息
+    public void showInstInfoByCommit(int commit) {
         List<IssueInstance> instances = instanceService.getInstByCommit(commit);
-        Map<IssueInstance, List<IssueLocation>> instanceListMap = new HashMap<>();
-        Map<IssueInstance, Date> introduceTimeMap = new HashMap<>();
-        Map<IssueInstance, IssueCaseType> typeMap = new HashMap<>();
-        instances.forEach(issueInstance -> {
-            // 查找对应的location
-            List<IssueLocation> locations = locationService.getLocationByInstId(issueInstance.getIssueInstanceId());
-            instanceListMap.put(issueInstance, locations);
-            // 查找对应的appear time
-            Date appearTime = instanceService.getAppearTimeById(issueInstance.getIssueInstanceId());
-            introduceTimeMap.put(issueInstance, appearTime);
-            // 查找对应的type
-            IssueCaseType type = instanceService.getTypeById(issueInstance.getIssueInstanceId());
-            typeMap.put(issueInstance, type);
-        });
-        System.out.println("该版本中共有静态缺陷个数：" + instances.size());
-        instances.forEach(issueInstance -> {
-            System.out.println("缺陷实例id: {}，缺陷类型{}，引入时间{}，缺陷所在文件{}，缺陷位置{}");
-        });
-
-        // 2、按类型分类
-        Map<IssueCaseType, List<IssueInstance>> classifyInstances = classifyByType(instances);
-        System.out.println("按类型分类：");
-        
-        // 3、按照存续时长排序
-        List<Map.Entry<IssueInstance, Date>> sortInstances = sortByTime(introduceTimeMap);
-        System.out.println("按缺陷存在时间排序：");
-
+        showInstInfo(instances);
     }
 
     @Override
-    public void showLatestInfo(int repositoryId, String branchName) {
+    public void showLatestInstInfo(int repositoryId, String branchName) {
         // 显示指定分支最新版本的缺陷信息
         // 1、查找分支id
         int branchId = branchService.getIdByNameAndRepoId(repositoryId, branchName);
@@ -77,33 +50,48 @@ public class SonarServiceImpl implements SonarService {
         // 2、获取该分支的最新版本id
         int commitId = commitService.getLatestByBranchId(branchId);
         // 3、获取特定版本下的信息
-        showInfoByCommit(commitId);
+        showInstInfoByCommit(commitId);
     }
 
-    // TODO: 指定版本的引入和解决情况
+    @Override
+    public void showCaseInfoByCommit(int commit) {
+        // 指定版本引入的
+        List<IssueCase> appear = caseService.getCaseByAppearCommitId(commit);
+        // 指定版本解决的
+        List<IssueCase> solve = caseService.getCaseBySolveCommitId(commit);
+        showAppearAndSolveInfo(appear, solve);
+    }
 
     @Override
-    public void showCaseByTime(Date begin, Date end) {
+    public void showCaseInfoByTime(Date begin, Date end) {
         // 指定时间段内引入的
         List<IssueCase> appear = caseService.getCaseByAppearTime(begin, end);
-        System.out.println("该时间段内引入的：");
-        appear.forEach(issueCase -> System.out.println(issueCase));
         // 指定时间段内解决的
         List<IssueCase> solve = caseService.getCaseBySolveTime(begin, end);
-        System.out.println("该时间段内解决的：");
-        solve.forEach(issueCase -> System.out.println(issueCase));
+        showAppearAndSolveInfo(appear, solve);
     }
 
     @Override
-    public void showCaseByCommiter(String commiter) {
+    public void showCaseInfoByCommiter(String commiter) {
         // 查找该commiter引入的
         List<IssueCase> appear = caseService.getCaseByAppearCommiter(commiter);
-        System.out.println("由该commiter引入的：");
-        appear.forEach(issueCase -> System.out.println(issueCase));
         // 查找该commiter解决的
         List<IssueCase> solve = caseService.getCaseBySolveCommiter(commiter);
-        System.out.println("由该commiter解决的：");
-        solve.forEach(issueCase -> System.out.println(issueCase));
+        showAppearAndSolveInfo(appear, solve);
+    }
+
+    @Override
+    public void showCaseInfoByDuration() {
+        // 获取存续时长超过一定时间的issue
+        long duration = 30 * 24 * 3600 * 1000;
+        List<IssueCase> cases = caseService.getCaseByDurationTime(duration);
+        Map<IssueCase, Commit> appearHashMap = new HashMap<>();
+        Map<IssueCase, Commit> solveHashMap = new HashMap<>();
+        getAppearAndSolveHashByCase(cases, appearHashMap, solveHashMap);
+        System.out.println("存续时间过长的缺陷：");
+        cases.forEach(issueCase -> {
+            System.out.println("抽象缺陷id：{}，缺陷类型：{}，引入版本：{}，解决版本：{}，存续时间：{}");
+        });
     }
 
     @Override
@@ -302,13 +290,117 @@ public class SonarServiceImpl implements SonarService {
         return map;
     }
 
-    private List<Map.Entry<IssueInstance, Date>> sortByTime(Map<IssueInstance, Date> map) {
+    private List<Map.Entry<IssueInstance, Long>> sortByTime(Map<IssueInstance, Long> map) {
         // 按照time进行排序
-        List<Map.Entry<IssueInstance, Date>> result = new ArrayList<>(map.entrySet());
+        List<Map.Entry<IssueInstance, Long>> result = new ArrayList<>(map.entrySet());
         Collections.sort(result, (a, b) -> {
-            return a.getValue().compareTo(b.getValue());
+            long diff = a.getValue() - b.getValue();
+            if (diff > 0) return 1;
+            else if (diff == 0) return 0;
+            else return -1;
         });
         return result;
+    }
+
+    private void getAppearAndSolveHashByCase(List<IssueCase> cases, Map<IssueCase, Commit> appearMap, Map<IssueCase, Commit> solveMap) {
+        cases.forEach(issueCase -> {
+            Commit appearHash = caseService.getAppearCommitById(issueCase.getIssueCaseId());
+            Commit solveHash = caseService.getSolveCommitById(issueCase.getIssueCaseId());
+            appearMap.put(issueCase, appearHash);
+            solveMap.put(issueCase, solveHash);
+        });
+    }
+
+    private void showAppearAndSolveInfo(List<IssueCase> appear, List<IssueCase> solve) {
+        // 引入的
+        Map<IssueCase, Commit> a_appearHashMap = new HashMap<>();
+        Map<IssueCase, Commit> a_solveHashMap = new HashMap<>();
+        getAppearAndSolveHashByCase(appear, a_appearHashMap, a_solveHashMap);
+        System.out.println("引入的缺陷情况：");
+        appear.forEach(issueCase -> {
+            Commit appearCommit = a_appearHashMap.get(issueCase);
+            Commit solveCommit = a_solveHashMap.get(issueCase);
+            long time = 0;
+            if (solveCommit == null) time = (new Date().getTime() - appearCommit.getCommitTime().getTime());
+            else time = solveCommit.getCommitTime().getTime() - appearCommit.getCommitTime().getTime();
+            int day = (int)(time / (24 * 3600 * 1000)) + 1;
+            System.out.printf("抽象缺陷id：%d，缺陷类型：%s，引入版本：%s，解决版本：%s，存续时间：约%d天\n",
+                    issueCase.getIssueCaseId(), issueCase.getType(), appearCommit.getCommitHash(), solveCommit.getCommitHash(), day);
+        });
+        System.out.printf("共引入%d个新的缺陷\n", appear.size());
+
+        // 解决的
+        Map<IssueCase, Commit> s_appearHashMap = new HashMap<>();
+        Map<IssueCase, Commit> s_solveHashMap = new HashMap<>();
+        getAppearAndSolveHashByCase(solve, s_appearHashMap, s_solveHashMap);
+        System.out.println("解决的缺陷情况：");
+        solve.forEach(issueCase -> {
+            Commit appearCommit = s_appearHashMap.get(issueCase);
+            Commit solveCommit = s_solveHashMap.get(issueCase);
+            long time = 0;
+            time = solveCommit.getCommitTime().getTime() - appearCommit.getCommitTime().getTime();
+            int day = (int)(time / (24 * 3600 * 1000)) + 1;
+            System.out.printf("抽象缺陷id：%d，缺陷类型：%s，引入版本：%s，解决版本：%s，存续时间：约%d天\n",
+                    issueCase.getIssueCaseId(), issueCase.getType(), appearCommit.getCommitHash(), solveCommit.getCommitHash(), day);
+        });
+        System.out.printf("共解决%d个缺陷\n", solve.size());
+    }
+
+    private void showInstInfo(List<IssueInstance> instances) {
+        // 1、获取缺陷的详细信息，包括
+        Map<IssueInstance, List<IssueLocation>> locationMap = new HashMap<>();
+        Map<IssueInstance, Date> appearTimeMap = new HashMap<>();
+        Map<IssueInstance, Date> solveTimeMap = new HashMap<>();
+        Map<IssueInstance, Long> durationTimeMap = new HashMap<>();
+        Map<IssueInstance, IssueCaseType> typeMap = new HashMap<>();
+        instances.forEach(issueInstance -> {
+            int caseId = issueInstance.getIssueCaseId();
+            // 查找对应的location
+            List<IssueLocation> locations = locationService.getLocationByInstId(issueInstance.getIssueInstanceId());
+            locationMap.put(issueInstance, locations);
+            // 查找对应的appear time
+            Date appearTime = instanceService.getAppearTimeById(issueInstance.getIssueInstanceId());
+            appearTimeMap.put(issueInstance, appearTime);
+            // 查找对应的solve time
+            Date solveTime = instanceService.getSolveTimeById(issueInstance.getIssueInstanceId());
+            solveTimeMap.put(issueInstance, solveTime);
+            // 获取对应的duration time
+            long time = (solveTime == null) ? (new Date().getTime() - appearTime.getTime()) : (solveTime.getTime() - appearTime.getTime());
+            durationTimeMap.put(issueInstance, time);
+            // 获取对应的type
+            IssueCaseType type = instanceService.getTypeById(issueInstance.getIssueInstanceId());
+            typeMap.put(issueInstance, type);
+        });
+
+        // 2、显示缺陷的详细信息
+        System.out.printf("该版本中共有静态缺陷%d个\n", instances.size());
+        instances.forEach(issueInstance -> {
+            int day = (int)(durationTimeMap.get(issueInstance) / (24 * 3600 * 1000));
+            System.out.printf("缺陷实例id: %d，缺陷类型：%s，引入时间：%s，解决时间：%s，存续时间：约%d天，缺陷所在文件：%s，缺陷位置：%s\n",
+                    issueInstance.getIssueInstanceId(), typeMap.get(issueInstance), appearTimeMap.get(issueInstance), solveTimeMap.get(issueInstance), day, issueInstance.getFileName(), locationMap.get(issueInstance));
+        });
+
+        // 3、按类型分类
+        Map<IssueCaseType, List<IssueInstance>> classifyInstances = classifyByType(instances);
+        System.out.println("按类型分类（只显示缺陷实例id）：");
+        classifyInstances.forEach((issueCaseType, instances1) -> {
+            System.out.printf("缺陷类型：%s\n", issueCaseType);
+            System.out.printf("缺陷id：[");
+            instances1.forEach(issueInstance -> {
+                System.out.printf("%d, ", issueInstance.getIssueInstanceId());
+            });
+            System.out.printf("]\n");
+        });
+
+        // 4、按照存续时长排序
+        List<Map.Entry<IssueInstance, Long>> sortInstances = sortByTime(durationTimeMap);
+        System.out.println("按缺陷存在时间排序（只显示缺陷实例id）：");
+        sortInstances.forEach(issueInstanceLongEntry -> {
+            IssueInstance key = issueInstanceLongEntry.getKey();
+            Long value = issueInstanceLongEntry.getValue();
+            int day = (int)(value / (24 * 3600 * 1000));
+            System.out.printf("缺陷实例id：%d，存续时间：约%d天\n", key.getIssueInstanceId(), day);
+        });
     }
 }
 

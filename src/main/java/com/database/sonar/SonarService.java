@@ -8,32 +8,38 @@ public interface SonarService {
      * 按照commit版本，展示该版本下的总缺陷详细列表，按照type分类的结果，以及按照存在时间排序的结果
      * @param commit_id
      */
-    void showInfoByCommit(int commit_id);
+    void showInstInfoByCommit(int commit_id);
 
     /**
      * 展示当前某分支最新版本下的总缺陷详细列表，按照type分类的结果，以及按照存在时间排序的结果
      * @param repositoryId
      * @param branchName
      */
-    void showLatestInfo(int repositoryId, String branchName);
-
-    // TODO: showCaseByCommit:展示给定版本下的缺陷引入和解决情况
+    void showLatestInstInfo(int repositoryId, String branchName);
 
     /**
-     * 展示某一时间段中的静态缺陷引入和解决情况（均显示对应缺陷引入版本下的instance信息）
-     * TODO: 对解决的数据信息进行统计，包括缺陷的解决率，已解决缺陷所用的时间，按照总体和各个type的issue进行统计
+     * 展示某一版本中静态缺陷引入和解决情况
+     * @param commit
+     */
+    void showCaseInfoByCommit(int commit);
+
+    /**
+     * 展示某一时间段中的静态缺陷引入和解决情况
      * @param begin
      * @param end
      */
-    void showCaseByTime(Date begin, Date end);
+    void showCaseInfoByTime(Date begin, Date end);
 
     /**
-     * 展示某一开发人员的缺陷引入和解决情况（均显示对应缺陷引入版本下的instance信息）
+     * 展示某一开发人员的缺陷引入和解决情况
      * @param commiter
      */
-    void showCaseByCommiter(String commiter);
+    void showCaseInfoByCommiter(String commiter);
 
-    // TODO: 现存缺陷中，已经存续超过指定时长的分类数量统计及详细信息
+    /**
+     * 现存的静态缺陷中，已经存续超过指定时间的缺陷情况
+     */
+    void showCaseInfoByDuration();
 
     // TODO: 静态缺陷的前后追踪关系
 

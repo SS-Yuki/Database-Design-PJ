@@ -2,6 +2,7 @@ package com.database.service.impl;
 
 import com.database.dao.IssueCaseDao;
 import com.database.dao.impl.IssueCaseDaoImpl;
+import com.database.object.Commit;
 import com.database.object.IssueCase;
 import com.database.service.IssueCaseService;
 
@@ -28,6 +29,16 @@ public class IssueCaseServiceImpl implements IssueCaseService {
     }
 
     @Override
+    public List<IssueCase> getCaseByAppearCommitId(int commitId) {
+        return null;
+    }
+
+    @Override
+    public List<IssueCase> getCaseBySolveCommitId(int commitId) {
+        return null;
+    }
+
+    @Override
     public List<IssueCase> getCaseByAppearCommiter(String appearCommiter) {
         return caseDao.queryByAppearCommiter(appearCommiter);
     }
@@ -46,4 +57,20 @@ public class IssueCaseServiceImpl implements IssueCaseService {
     public List<IssueCase> getCaseBySolveTime(Date begin, Date end) {
         return caseDao.queryBySolveTime(begin, end);
     }
+
+    @Override
+    public List<IssueCase> getCaseByDurationTime(Long duration) {
+        return null;
+    }
+
+    @Override
+    public Commit getAppearCommitById(int caseId) {
+        return null;
+    }
+
+    @Override
+    public Commit getSolveCommitById(int caseId) {
+        return null;
+    }
+
 }

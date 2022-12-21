@@ -38,4 +38,36 @@ public class CommonTest {
         System.out.println(list);
     }
 
+    @Test
+    public void testLongSort() {
+        Map<Integer, Long> map = new HashMap<>();
+        map.put(1, 10000000L);
+        map.put(2, 20000000L);
+        map.put(3, 5000000L);
+        List<Map.Entry<Integer, Long>> list = new ArrayList<>(map.entrySet());
+        System.out.println("before sort");
+        System.out.println(list);
+        Collections.sort(list, (a, b) -> {
+            long diff = a.getValue() - b.getValue();
+            if (diff > 0) return 1;
+            else if (diff == 0) return 0;
+            else return -1;
+        });
+        System.out.println("after sort");
+        System.out.println(list);
+    }
+
+    @Test
+    public void testMapEntry() {
+        Map<Integer, Long> map = new HashMap<>();
+        map.put(1, 10000000L);
+        map.put(2, 20000000L);
+        map.put(3, 5000000L);
+        List<Map.Entry<Integer, Long>> list = new ArrayList<>(map.entrySet());
+        list.forEach(integerLongEntry -> {
+            System.out.println(integerLongEntry.getKey());
+            System.out.println(integerLongEntry.getValue());
+        });
+    }
+
 }
