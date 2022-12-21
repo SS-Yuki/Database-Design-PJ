@@ -113,7 +113,7 @@ public class SonarServiceImpl implements SonarService {
         Git git = null;
         try {
             git = Git.open(new File(pathName));
-            git.checkout().setCreateBranch(false).setName("main").call();   // 切换到主分支
+            // git.checkout().setCreateBranch(false).setName("main").call();   // 切换到主分支
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -167,10 +167,9 @@ public class SonarServiceImpl implements SonarService {
     private void importIssue(int repositoryId, String pathName) throws Exception {
         // 前面已经将仓库的元信息入库，该函数将issue case、instance与location入库
         // 确定仓库分支的数目
-        int[] branchIds = branchService.getIdByRepoId(repositoryId);
+        int[] branchIdList = branchService.getIdByRepoId(repositoryId);
         // 遍历分支，逐分支逐commit入库issue
-        for (int _i = 0; _i < branchIds.length; _i++) {
-            int branchId = branchIds[_i];
+        for (int branchId:branchIdList) {
             // 获取该分支下的所有commit id（这里是由我们维护的id）
             // TODO: 这里需要按照父子关系排序
             int[] commitIdList = commitService.getIdByBranchId(branchId);
@@ -236,8 +235,9 @@ public class SonarServiceImpl implements SonarService {
                     }
                     else {
                         // 封装instance，并匹配到case
-                        // TODO: get issue case id by match
-                        IssueInstance issueInstance = new IssueInstance(commitId, 0, IssueInstanceStatus.APPEAR, curRawIssue.getFileName());
+                        RawIssue mappedRawIssue = curRawIssue.getMappedRawIssue();
+                        IssueInstance mappedIssueInstance = preIssueInstances.get(preRawIssues.indexOf(mappedRawIssue));
+                        IssueInstance issueInstance = new IssueInstance(commitId, mappedIssueInstance.getCommitId(), IssueInstanceStatus.APPEAR, curRawIssue.getFileName());
                         int instanceId = instanceService.insert(issueInstance);
                         issueInstance.setIssueInstanceId(instanceId);
                         curIssueInstances.add(issueInstance);
