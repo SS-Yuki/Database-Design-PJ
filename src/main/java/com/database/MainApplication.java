@@ -2,12 +2,14 @@ package com.database;
 
 import com.database.sonar.SonarService;
 import com.database.sonar.impl.SonarServiceImpl;
+import com.database.utils.InitUtil;
 
 import java.util.Scanner;
 
 public class MainApplication {
 
     public static void main(String[] args) {
+        InitUtil.createTable();
         SonarService sonarService = new SonarServiceImpl();
         printHelp();
         Scanner scanner = new Scanner(System.in);
