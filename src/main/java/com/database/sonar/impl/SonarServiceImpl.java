@@ -5,6 +5,7 @@ import cn.edu.fudan.issue.entity.dbo.Location;
 import cn.edu.fudan.issue.entity.dbo.RawIssue;
 import cn.edu.fudan.issue.util.AnalyzerUtil;
 import cn.edu.fudan.issue.util.AstParserUtil;
+import com.database.common.IssueCaseStatus;
 import com.database.common.IssueCaseType;
 import com.database.common.IssueInstanceStatus;
 import com.database.object.*;
@@ -84,13 +85,19 @@ public class SonarServiceImpl implements SonarService {
     public void showCaseInfoByDuration() {
         // 获取存续时长超过一定时间的issue
         long duration = 30 * 24 * 3600 * 1000;
-        List<IssueCase> cases = caseService.getCaseByDurationTime(duration);
+        Map<IssueCase, Long> cases = caseService.getCaseByDurationTime(duration);
+        List<IssueCase> caseList = new ArrayList<>();
+        cases.forEach((issueCase, aLong) -> {
+            caseList.add(issueCase);
+        });
         Map<IssueCase, Commit> appearHashMap = new HashMap<>();
         Map<IssueCase, Commit> solveHashMap = new HashMap<>();
-        getAppearAndSolveHashByCase(cases, appearHashMap, solveHashMap);
+        getAppearAndSolveHashByCase(caseList, appearHashMap, solveHashMap);
         System.out.println("存续时间过长的缺陷：");
-        cases.forEach(issueCase -> {
-            System.out.println("抽象缺陷id：{}，缺陷类型：{}，引入版本：{}，解决版本：{}，存续时间：{}");
+        caseList.forEach(issueCase -> {
+            int day = (int) (cases.get(issueCase) / (24 * 3600 * 1000));
+            System.out.printf("抽象缺陷id：%d，缺陷类型：%s，引入版本：%s，解决版本：%s，存续时间：约%d天",
+                    issueCase.getIssueCaseId(), issueCase.getIssueCaseType(), appearHashMap.get(issueCase).getCommitHash(), solveHashMap.get(issueCase).getCommitHash(), day);
         });
     }
 
@@ -169,7 +176,7 @@ public class SonarServiceImpl implements SonarService {
             // 通过得到的 raw issue，封装case和instance
             for (RawIssue preRawIssue : preRawIssues) {
                 // 封装成case并入库
-                IssueCase issueCase = new IssueCase(EnumUtil.RawIssueType2IssueCaseType(preRawIssue.getType()), commitIdList[0]);
+                IssueCase issueCase = new IssueCase(IssueCaseStatus.UNSOLVED, EnumUtil.RawIssueType2IssueCaseType(preRawIssue.getType()), commitIdList[0]);
                 int caseId = caseService.insert(issueCase);
 
                 // 封装成instance并入库
@@ -205,7 +212,7 @@ public class SonarServiceImpl implements SonarService {
                     // 没有匹配到前面的instance
                     if (curRawIssue.getMappedRawIssue() == null) {
                         // 封装case并入库
-                        IssueCase issueCase = new IssueCase(EnumUtil.RawIssueType2IssueCaseType(curRawIssue.getType()), commitId);
+                        IssueCase issueCase = new IssueCase(IssueCaseStatus.UNSOLVED, EnumUtil.RawIssueType2IssueCaseType(curRawIssue.getType()), commitId);
                         int caseId = caseService.insert(issueCase);
 
                         // 封装instance并入库
@@ -325,7 +332,7 @@ public class SonarServiceImpl implements SonarService {
             else time = solveCommit.getCommitTime().getTime() - appearCommit.getCommitTime().getTime();
             int day = (int)(time / (24 * 3600 * 1000)) + 1;
             System.out.printf("抽象缺陷id：%d，缺陷类型：%s，引入版本：%s，解决版本：%s，存续时间：约%d天\n",
-                    issueCase.getIssueCaseId(), issueCase.getType(), appearCommit.getCommitHash(), solveCommit.getCommitHash(), day);
+                    issueCase.getIssueCaseId(), issueCase.getIssueCaseType(), appearCommit.getCommitHash(), solveCommit.getCommitHash(), day);
         });
         System.out.printf("共引入%d个新的缺陷\n", appear.size());
 
@@ -341,7 +348,7 @@ public class SonarServiceImpl implements SonarService {
             time = solveCommit.getCommitTime().getTime() - appearCommit.getCommitTime().getTime();
             int day = (int)(time / (24 * 3600 * 1000)) + 1;
             System.out.printf("抽象缺陷id：%d，缺陷类型：%s，引入版本：%s，解决版本：%s，存续时间：约%d天\n",
-                    issueCase.getIssueCaseId(), issueCase.getType(), appearCommit.getCommitHash(), solveCommit.getCommitHash(), day);
+                    issueCase.getIssueCaseId(), issueCase.getIssueCaseType(), appearCommit.getCommitHash(), solveCommit.getCommitHash(), day);
         });
         System.out.printf("共解决%d个缺陷\n", solve.size());
     }

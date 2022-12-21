@@ -1,24 +1,27 @@
 package com.database.object;
 
+import com.database.common.IssueCaseStatus;
 import com.database.common.IssueCaseType;
-
 
 public class IssueCase {
     private int issueCaseId;
 
-    private IssueCaseType type;
+    private IssueCaseStatus issueCaseStatus;
+    private IssueCaseType issueCaseType;
 
     private int appearCommitId;
     private int solveCommitId;
 
-    public IssueCase(IssueCaseType type, int appearCommitId) {
-        this.type = type;
+    public IssueCase(IssueCaseStatus issueCaseStatus, IssueCaseType issueCaseType, int appearCommitId) {
+        this.issueCaseStatus = issueCaseStatus;
+        this.issueCaseType = issueCaseType;
         this.appearCommitId = appearCommitId;
     }
 
-    public IssueCase(int issueCaseId, IssueCaseType type, int appearCommitId, int solveCommitId) {
+    public IssueCase(int issueCaseId, IssueCaseStatus issueCaseStatus, IssueCaseType issueCaseType, int appearCommitId, int solveCommitId) {
         this.issueCaseId = issueCaseId;
-        this.type = type;
+        this.issueCaseStatus = issueCaseStatus;
+        this.issueCaseType = issueCaseType;
         this.appearCommitId = appearCommitId;
         this.solveCommitId = solveCommitId;
     }
@@ -31,12 +34,20 @@ public class IssueCase {
         this.issueCaseId = issueCaseId;
     }
 
-    public IssueCaseType getType() {
-        return type;
+    public IssueCaseStatus getIssueCaseStatus() {
+        return issueCaseStatus;
     }
 
-    public void setType(IssueCaseType type) {
-        this.type = type;
+    public void setIssueCaseStatus(IssueCaseStatus issueCaseStatus) {
+        this.issueCaseStatus = issueCaseStatus;
+    }
+
+    public IssueCaseType getIssueCaseType() {
+        return issueCaseType;
+    }
+
+    public void setIssueCaseType(IssueCaseType issueCaseType) {
+        this.issueCaseType = issueCaseType;
     }
 
     public int getAppearCommitId() {
@@ -59,7 +70,8 @@ public class IssueCase {
     public String toString() {
         return "IssueCase{" +
                 "issueCaseId=" + issueCaseId +
-                ", type=" + type +
+                ", issueCaseStatus=" + issueCaseStatus +
+                ", issueCaseType=" + issueCaseType +
                 ", appearCommitId=" + appearCommitId +
                 ", solveCommitId=" + solveCommitId +
                 '}';

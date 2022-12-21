@@ -1,6 +1,8 @@
 package com.database.dao.impl;
 
+import com.database.common.IssueCaseStatus;
 import com.database.dao.IssueCaseDao;
+import com.database.object.Commit;
 import com.database.object.IssueCase;
 import com.database.utils.JDBCUtil;
 
@@ -10,43 +12,74 @@ import java.util.List;
 public class IssueCaseDaoImpl implements IssueCaseDao {
     @Override
     public int insert(IssueCase issueCase) {
-        String sql = "insert into issuecase (type, severity, appear_commit_id) values (?, ?, ?)";
-        return JDBCUtil.update(sql);
+        String sql = "insert into issue_case (issueCaseStatus, issueCaseType, appearCommitId) values (?, ?, ?)";
+        return JDBCUtil.update(sql, issueCase.getIssueCaseStatus(), issueCase.getIssueCaseType(), issueCase.getAppearCommitId());
     }
 
     @Override
     public IssueCase queryById(int id) {
-        String sql = "select case_id caseId, type, severity, appear_commit_id appearCommitId, solve_commit_id solveCommitId where case_id = ?";
+        String sql = "select issueCaseId, issueCaseStatus, issueCaseType, appearCommitId, solveCommitId from issue_case where issueCaseId = ?";
         return JDBCUtil.queryOne(IssueCase.class, sql, id);
     }
 
     @Override
     public void update(IssueCase issueCase) {
-        String sql = "update issuecase set type = ?, appear_commit_id = ?, solve_commit_id = ? where case_id = ?";
-        JDBCUtil.update(sql, issueCase.getType(), issueCase.getAppearCommitId(), issueCase.getSolveCommitId(), issueCase.getIssueCaseId());
+        String sql = "update issue_case set issueCaseStatus = ?, issueCaseType = ?, appearCommitId = ?, solveCommitId = ? where caseId = ?";
+        JDBCUtil.update(sql, issueCase.getIssueCaseStatus(), issueCase.getIssueCaseType(), issueCase.getAppearCommitId(), issueCase.getSolveCommitId(), issueCase.getIssueCaseId());
     }
 
     @Override
     public List<IssueCase> queryByAppearCommiter(String commiter) {
-        String sql = "select case_id caseId, type, appear_commit_id appearCommitId, solve_commit_id solveCommitId from issuecase join commit c on c.commit_id = issuecase.appear_commit_id where commiter = ?";
+        String sql = "select issueCaseId, issueCaseStatus, issueCaseType, appearCommitId, solveCommitId from issue_case join git_commit c on c.commitId = issue_case.appearCommitId where commiter = ?";
         return JDBCUtil.query(IssueCase.class, sql, commiter);
     }
 
     @Override
     public List<IssueCase> queryBySolveCommiter(String commiter) {
-        String sql = "select case_id caseId, type, appear_commit_id appearCommitId, solve_commit_id solveCommitId from issuecase join commit c on c.commit_id = issuecase.solve_commit_id where commiter = ?";
-        return JDBCUtil.query(IssueCase.class, sql, commiter);
+        String sql = "select issueCaseId, issueCaseStatus, issueCaseType, appearCommitId, solveCommitId from issue_case join git_commit c on c.commitId = issue_case.solveCommitId where issue_case.issueCaseStatus = ? and commiter = ?";
+        return JDBCUtil.query(IssueCase.class, sql, IssueCaseStatus.SOLVED, commiter);
     }
 
     @Override
     public List<IssueCase> queryByAppearTime(Date begin, Date end) {
-        String sql = "select case_id caseId, type, appear_commit_id appearCommitId, solve_commit_id solveCommitId from issuecase join commit c on c.commit_id = issuecase.appear_commit_id where commit_time > ? and commit_time < ?";
+        String sql = "select issueCaseId, issueCaseStatus, issueCaseType, appearCommitId, solveCommitId from issue_case join git_commit c on c.commitId = issue_case.appearCommitId where commitTime > ? and commitTime < ?";
         return JDBCUtil.query(IssueCase.class, sql, begin, end);
     }
 
     @Override
     public List<IssueCase> queryBySolveTime(Date begin, Date end) {
-        String sql = "select case_id caseId, type, appear_commit_id appearCommitId, solve_commit_id solveCommitId from issuecase join commit c on c.commit_id = issuecase.solve_commit_id where commit_time > ? and commit_time < ?";
-        return null;
+        String sql = "select issueCaseId, issueCaseStatus, issueCaseType, appearCommitId, solveCommitId from issue_case join git_commit c on c.commitId = issue_case.solveCommitId where issue_case.issueCaseStatus = ? and commitTime > ? and commitTime < ?";
+        return JDBCUtil.query(IssueCase.class, sql, IssueCaseStatus.SOLVED, begin, end);
     }
+
+    @Override
+    public List<IssueCase> queryByAppearCommitId(int commitId) {
+        String sql = "select issueCaseId, issueCaseStatus, issueCaseType, appearCommitId, solveCommitId from issue_case where appearCommitId = ?";
+        return JDBCUtil.query(IssueCase.class, sql, commitId);
+    }
+
+    @Override
+    public List<IssueCase> queryBySolveCommitId(int commit) {
+        String sql = "select issueCaseId, issueCaseStatus, issueCaseType, appearCommitId, solveCommitId from issue_case where issueCaseStatus = ? and solveCommitId = ?";
+        return JDBCUtil.query(IssueCase.class, sql, IssueCaseStatus.SOLVED, commit);
+    }
+
+    @Override
+    public List<IssueCase> queryAll() {
+        String sql = "select issueCaseId, issueCaseStatus, issueCaseType, appearCommitId, solveCommitId from issue_case";
+        return JDBCUtil.query(IssueCase.class, sql);
+    }
+
+    @Override
+    public Commit queryAppearCommitById(int caseId) {
+        String sql = "select commitId, branchId, commitHash, commitTime, commiter from git_commit join issue_case on issue_case.appearCommitId = git_commit.commitId where issue_case.issueCaseId = ?";
+        return JDBCUtil.queryOne(Commit.class, sql, caseId);
+    }
+
+    @Override
+    public Commit querySolveCommitById(int caseId) {
+        String sql = "select commitId, branchId, commitHash, commitTime, commiter from git_commit join issue_case on issue_case.solveCommitId = git_commit.commitId where issue_case.issueCaseStatus = ? and issue_case.issueCaseId = ?";
+        return JDBCUtil.queryOne(Commit.class, sql, IssueCaseStatus.SOLVED, caseId);
+    }
+
 }

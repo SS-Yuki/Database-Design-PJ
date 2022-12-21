@@ -5,6 +5,7 @@ import com.database.object.IssueCase;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public interface IssueCaseService {
 
@@ -26,7 +27,7 @@ public interface IssueCaseService {
 
     List<IssueCase> getCaseBySolveTime(Date begin, Date end);
 
-    List<IssueCase> getCaseByDurationTime(Long duration);
+    Map<IssueCase, Long> getCaseByDurationTime(Long duration);
 
     Commit getAppearCommitById(int caseId);
 

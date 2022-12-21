@@ -1,5 +1,6 @@
 package com.database.dao;
 
+import com.database.object.Commit;
 import com.database.object.IssueCase;
 
 import java.util.Date;
@@ -21,4 +22,13 @@ public interface IssueCaseDao {
 
     List<IssueCase> queryBySolveTime(Date begin, Date end);
 
+    List<IssueCase> queryByAppearCommitId(int commitId);
+
+    List<IssueCase> queryBySolveCommitId(int commit);
+
+    List<IssueCase> queryAll();
+
+    Commit queryAppearCommitById(int caseId);
+
+    Commit querySolveCommitById(int caseId);
 }

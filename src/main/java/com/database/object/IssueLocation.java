@@ -2,17 +2,14 @@ package com.database.object;
 
 public class IssueLocation {
     private int issueInstanceId;
-    private int order;
+    private int locationOrder;
 
     private int startLine;
     private int endLine;
 
-    public IssueLocation() {
-    }
-
-    public IssueLocation(int issueInstanceId, int order, int startLine, int endLine) {
+    public IssueLocation(int issueInstanceId, int locationOrder, int startLine, int endLine) {
         this.issueInstanceId = issueInstanceId;
-        this.order = order;
+        this.locationOrder = locationOrder;
         this.startLine = startLine;
         this.endLine = endLine;
     }
@@ -25,12 +22,12 @@ public class IssueLocation {
         this.issueInstanceId = issueInstanceId;
     }
 
-    public int getOrder() {
-        return order;
+    public int getLocationOrder() {
+        return locationOrder;
     }
 
-    public void setOrder(int order) {
-        this.order = order;
+    public void setLocationOrder(int locationOrder) {
+        this.locationOrder = locationOrder;
     }
 
     public int getStartLine() {
@@ -53,7 +50,7 @@ public class IssueLocation {
     public String toString() {
         return "IssueLocation{" +
                 "issueInstanceId=" + issueInstanceId +
-                ", order=" + order +
+                ", locationOrder=" + locationOrder +
                 ", startLine=" + startLine +
                 ", endLine=" + endLine +
                 '}';

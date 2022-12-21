@@ -10,7 +10,7 @@ public interface CommitDao {
      * 根据commit信息插入一个字段
      * @param commit
      */
-    void insert(Commit commit);
+    int insert(Commit commit);
 
     /**
      * 根据commit的id查找一个commit
