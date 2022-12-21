@@ -11,7 +11,7 @@ public interface RepositoryDao {
      * 根据传入的repository对象插入数据库表
      * @param repository 封装插入的字段值，id无效，只通过name和dir插入
      */
-    void insert(Repository repository);
+    int insert(Repository repository);
 
     /**
      * 根据传入的id查询到repository对象

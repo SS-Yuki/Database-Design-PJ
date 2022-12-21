@@ -16,6 +16,8 @@ public interface IssueInstanceService {
 
     Date getAppearTimeById(int inst_id);
 
+    Date getSolveTimeById(int inst_id);
+
     IssueCaseType getTypeById(int inst_id);
 
 }

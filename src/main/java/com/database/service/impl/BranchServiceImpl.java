@@ -14,10 +14,7 @@ public class BranchServiceImpl implements BranchService {
     @Override
     public int insert(Branch branch) {
         // 插入
-        branchDao.insert(branch);
-        // 查找
-        Branch queryBranch = branchDao.queryByNameAndRepoId(branch.getBranchName(), branch.getRepositoryId());
-        return queryBranch.getBranchId();
+        return branchDao.insert(branch);
     }
 
     @Override

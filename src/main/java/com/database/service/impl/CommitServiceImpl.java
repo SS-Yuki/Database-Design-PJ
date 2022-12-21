@@ -14,10 +14,7 @@ public class CommitServiceImpl implements CommitService {
     @Override
     public int insert(Commit commit) {
         // 插入
-        commitDao.insert(commit);
-        // 按hash和branch查找
-        Commit queryCommit = commitDao.queryByHashAndBranchId(commit.getCommitHash(), commit.getBranchId());
-        return queryCommit.getCommitId();
+        return commitDao.insert(commit);
     }
 
     @Override

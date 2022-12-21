@@ -9,14 +9,22 @@ public class IssueInstance {
 
     private int issueCaseId;
 
-    private IssueInstanceStatus status;
+    private IssueInstanceStatus issueInstanceStatus;
 
     private String fileName;
 
-    public IssueInstance(int commitId, int issueCaseId, IssueInstanceStatus status, String fileName) {
+    public IssueInstance(int commitId, int issueCaseId, IssueInstanceStatus issueInstanceStatus, String fileName) {
         this.commitId = commitId;
         this.issueCaseId = issueCaseId;
-        this.status = status;
+        this.issueInstanceStatus = issueInstanceStatus;
+        this.fileName = fileName;
+    }
+
+    public IssueInstance(int issueInstanceId, int commitId, int issueCaseId, IssueInstanceStatus issueInstanceStatus, String fileName) {
+        this.issueInstanceId = issueInstanceId;
+        this.commitId = commitId;
+        this.issueCaseId = issueCaseId;
+        this.issueInstanceStatus = issueInstanceStatus;
         this.fileName = fileName;
     }
 
@@ -44,12 +52,12 @@ public class IssueInstance {
         this.issueCaseId = issueCaseId;
     }
 
-    public IssueInstanceStatus getStatus() {
-        return status;
+    public IssueInstanceStatus getIssueInstanceStatus() {
+        return issueInstanceStatus;
     }
 
-    public void setStatus(IssueInstanceStatus status) {
-        this.status = status;
+    public void setIssueInstanceStatus(IssueInstanceStatus issueInstanceStatus) {
+        this.issueInstanceStatus = issueInstanceStatus;
     }
 
     public String getFileName() {
@@ -58,5 +66,16 @@ public class IssueInstance {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    @Override
+    public String toString() {
+        return "IssueInstance{" +
+                "issueInstanceId=" + issueInstanceId +
+                ", commitId=" + commitId +
+                ", issueCaseId=" + issueCaseId +
+                ", issueInstanceStatus=" + issueInstanceStatus +
+                ", fileName='" + fileName + '\'' +
+                '}';
     }
 }

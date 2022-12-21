@@ -34,6 +34,11 @@ public class IssueInstanceServiceImpl implements IssueInstanceService {
     }
 
     @Override
+    public Date getSolveTimeById(int inst_id) {
+        return null;
+    }
+
+    @Override
     public IssueCaseType getTypeById(int inst_id) {
         return issueInstanceDao.queryTypeById(inst_id);
     }

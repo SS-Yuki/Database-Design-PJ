@@ -10,13 +10,13 @@ public class IssueLocationDaoImpl implements IssueLocationDao {
 
     @Override
     public void insert(IssueLocation issueLocation) {
-        String sql = "insert into issueloaction (inst_id, order, start_line, end_line) values (?, ?, ?, ?)";
-        JDBCUtil.update(sql, issueLocation.getIssueInstanceId(), issueLocation.getOrder(), issueLocation.getStartLine(), issueLocation.getEndLine());
+        String sql = "insert into issue_loaction (issueInstanceId, locationOrder, startLine, endLine) values (?, ?, ?, ?)";
+        JDBCUtil.update(sql, issueLocation.getIssueInstanceId(), issueLocation.getLocationOrder(), issueLocation.getStartLine(), issueLocation.getEndLine());
     }
 
     @Override
     public List<IssueLocation> queryByInstId(int inst_id) {
-        String sql = "select inst_id issueInstanceId, order, start_line startLine, end_line endLine from issuelocation where inst_id = ?";
+        String sql = "select issueInstanceId, locationOrder, startLine, endLine from issue_location where issueInstanceId = ?";
         return JDBCUtil.query(IssueLocation.class, sql, inst_id);
     }
 

@@ -18,13 +18,13 @@ public class MainApplication {
         while (flag) {
             command = scanner.nextLine();
             switch (command) {
-                case "help": printHelp(); break;
-                case "latest": sonarService.showLatestInfo(0, "");
-                case "commit": sonarService.showInfoByCommit(0); break;
-                case "time": sonarService.showCaseByTime(null, null); break;
-                case "commiter": sonarService.showCaseByCommiter(""); break;
-                case "import": sonarService.importRepository("", ""); break;
-                case "exit": flag = false; break;
+//                case "help": printHelp(); break;
+//                case "latest": sonarService.showLatestInfo(0, "");
+//                case "commit": sonarService.showInfoByCommit(0); break;
+//                case "time": sonarService.showCaseByTime(null, null); break;
+//                case "commiter": sonarService.showCaseByCommiter(""); break;
+//                case "import": sonarService.importRepository("", ""); break;
+//                case "exit": flag = false; break;
             }
         }
     }

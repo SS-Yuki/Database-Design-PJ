@@ -10,7 +10,7 @@ public interface BranchDao {
      * 根据对象添加一个branch字段
      * @param branch    字段的数据，有效数据为branch name和 repository id
      */
-    void insert(Branch branch);
+    int insert(Branch branch);
 
     /**
      * 根据id查询一个branch
