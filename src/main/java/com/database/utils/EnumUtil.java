@@ -1,42 +1,88 @@
 package com.database.utils;
 
+import com.database.common.IssueCaseStatus;
 import com.database.common.IssueCaseType;
+import com.database.common.IssueInstanceStatus;
 
 public class EnumUtil {
-    //RawIssueType -> IssueCaseType
-    public static IssueCaseType RawIssueType2IssueCaseType(String type) {
-        IssueCaseType issueCaseType = IssueCaseType.BUG;
+    //IssueCaseType
+    public static IssueCaseType IssueCaseTypeString2Enum(String type) {
         switch(type){
             case "BUG" :
-                issueCaseType = IssueCaseType.BUG;
-                break;
+                return IssueCaseType.BUG;
             case "VULNERABILITY" :
-                issueCaseType = IssueCaseType.VULNERABILITY;
-                break;
+                return IssueCaseType.VULNERABILITY;
             case "CODE_SMELL" :
-                issueCaseType = IssueCaseType.CODE_SMELL;
-                break;
+                return IssueCaseType.CODE_SMELL;
             default :
-                break;
+                return IssueCaseType.BUG;
         }
-        return issueCaseType;
     }
 
-    public static IssueCaseType Int2IssueCaseType(int type) {
-        IssueCaseType issueCaseType = IssueCaseType.BUG;
-        switch (type) {
-            case 1:
-                issueCaseType = IssueCaseType.BUG;
-                break;
-            case 2:
-                issueCaseType = IssueCaseType.CODE_SMELL;
-                break;
-            case 3:
-                issueCaseType = IssueCaseType.VULNERABILITY;
-                break;
-            default:
-                break;
+    public static String Enum2String(IssueCaseType issueCaseType) {
+        switch(issueCaseType){
+            case BUG :
+                return "BUG";
+            case VULNERABILITY:
+                return "VULNERABILITY";
+            case CODE_SMELL:
+                return "CODE_SMELL";
+            default :
+                return "";
         }
-        return issueCaseType;
     }
+
+
+
+    //IssueCaseStatus
+    public static IssueCaseStatus IssueCaseStatusString2Enum(String status) {
+        switch(status){
+            case "UNSOLVED" :
+                return IssueCaseStatus.UNSOLVED;
+            case "SOLVED" :
+                return IssueCaseStatus.SOLVED;
+            default :
+                return IssueCaseStatus.UNSOLVED;
+        }
+    }
+
+    public static String Enum2String(IssueCaseStatus issueCaseStatus) {
+        switch(issueCaseStatus){
+            case UNSOLVED:
+                return "UNSOLVED";
+            case SOLVED:
+                return "SOLVED";
+            default :
+                return "";
+        }
+    }
+
+
+    //IssueInstanceStatus
+    public static IssueInstanceStatus IssueInstanceStatusString2Enum(String status) {
+        switch(status){
+            case "APPEAR" :
+                return IssueInstanceStatus.APPEAR;
+            case "EVOLVE" :
+                return IssueInstanceStatus.EVOLVE;
+            case "DISAPPEAR" :
+                return IssueInstanceStatus.DISAPPEAR;
+            default :
+                return IssueInstanceStatus.APPEAR;
+        }
+    }
+
+    public static String Enum2String(IssueInstanceStatus issueInstanceStatus) {
+        switch(issueInstanceStatus){
+            case APPEAR:
+                return "APPEAR";
+            case EVOLVE:
+                return "EVOLVE";
+            case DISAPPEAR:
+                return "DISAPPEAR";
+            default :
+                return "";
+        }
+    }
+
 }

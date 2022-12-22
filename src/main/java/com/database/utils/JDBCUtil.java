@@ -1,5 +1,9 @@
 package com.database.utils;
 
+import com.database.common.IssueInstanceStatus;
+import com.database.object.IssueCase;
+import com.database.object.IssueInstance;
+
 import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.ArrayList;
@@ -131,6 +135,27 @@ public class JDBCUtil {
         }
     }
 
+//    private static ResultSet querySql(String sql, Object... args) {
+//        Connection connection = null;
+//        PreparedStatement statement = null;
+//        ResultSet rs = null;
+//        try {
+//            connection = ConnectionUtil.getConnection();
+//            statement = connection.prepareStatement(sql);
+//            for (int i = 0; i < args.length; i++) {
+//                statement.setObject(i + 1, args[i]);
+//            }
+//            rs = statement.executeQuery();
+//        }
+//        catch (Exception e) {
+//                System.out.println(e.getMessage());
+//        }
+//        finally {
+//                ConnectionUtil.closeResource(connection, statement, rs);
+//        }
+//        return rs;
+//    }
+
     /**
      * 查询数据库，并将查询结果封装为bean
      * @param clazz
@@ -150,6 +175,7 @@ public class JDBCUtil {
                 statement.setObject(i + 1, args[i]);
             }
             rs = statement.executeQuery();
+//            ResultSet rs = querySql(sql, args);
             ResultSetMetaData resultSetMetaData = rs.getMetaData();
             int columnCount = resultSetMetaData.getColumnCount();
             // 处理查询结果
@@ -168,11 +194,30 @@ public class JDBCUtil {
             }
             return queryList;
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         } finally {
             ConnectionUtil.closeResource(connection, statement, rs);
         }
         return null;
+
+//        Connection connection = null;
+//        PreparedStatement statement = null;
+//        ResultSet rs = null;
+
+//        try {
+//            connection = ConnectionUtil.getConnection();
+//            statement = connection.prepareStatement(sql);
+//            for (int i = 0; i < args.length; i++) {
+//                statement.setObject(i + 1, args[i]);
+//            }
+//            rs = statement.executeQuery();
+
+//        } catch (Exception e) {
+//            System.out.println(e.getMessage());
+//        } finally {
+//            ConnectionUtil.closeResource(connection, statement, rs);
+//        }
+//        return null;
     }
 
     /**
@@ -208,7 +253,122 @@ public class JDBCUtil {
                 return t;
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
+        } finally {
+            ConnectionUtil.closeResource(connection, statement, rs);
+        }
+        return null;
+    }
+
+    public static IssueCase queryOneForIssueCase(String sql, Object... args) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        try {
+            connection = ConnectionUtil.getConnection();
+            statement = connection.prepareStatement(sql);
+            for (int i = 0; i < args.length; i++) {
+                statement.setObject(i + 1, args[i]);
+            }
+            rs = statement.executeQuery();
+            if (rs.next()) {
+                return new IssueCase(
+                        rs.getInt("issueCaseId"),
+                        EnumUtil.IssueCaseStatusString2Enum(rs.getString("issueCaseStatus")),
+                        EnumUtil.IssueCaseTypeString2Enum(rs.getString("issueCaseType")),
+                        rs.getInt("appearCommitId"),
+                        rs.getInt("solveCommitId"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            ConnectionUtil.closeResource(connection, statement, rs);
+        }
+        return null;
+    }
+
+    public static List<IssueCase> queryForIssueCase(String sql, Object... args) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        try {
+            connection = ConnectionUtil.getConnection();
+            statement = connection.prepareStatement(sql);
+            for (int i = 0; i < args.length; i++) {
+                statement.setObject(i + 1, args[i]);
+            }
+            rs = statement.executeQuery();
+            List<IssueCase> list = new ArrayList<>();
+            while (rs.next()) {
+                IssueCase issueCase = new IssueCase(
+                        rs.getInt("issueCaseId"),
+                        EnumUtil.IssueCaseStatusString2Enum(rs.getString("issueCaseStatus")),
+                        EnumUtil.IssueCaseTypeString2Enum(rs.getString("issueCaseType")),
+                        rs.getInt("appearCommitId"),
+                        rs.getInt("solveCommitId"));
+                list.add(issueCase);
+            }
+            return list;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            ConnectionUtil.closeResource(connection, statement, rs);
+        }
+        return null;
+    }
+
+
+    public static IssueInstance queryOneForIssueInstance(String sql, Object... args) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        try {
+            connection = ConnectionUtil.getConnection();
+            statement = connection.prepareStatement(sql);
+            for (int i = 0; i < args.length; i++) {
+                statement.setObject(i + 1, args[i]);
+            }
+            rs = statement.executeQuery();
+            if (rs.next()) {
+                return new IssueInstance(
+                        rs.getInt("issueInstanceId"),
+                        rs.getInt("issueCaseId"),
+                        rs.getInt("commitId"),
+                        EnumUtil.IssueInstanceStatusString2Enum(rs.getString("issueInstanceStatus")),
+                        rs.getString("fileName"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            ConnectionUtil.closeResource(connection, statement, rs);
+        }
+        return null;
+    }
+
+    public static List<IssueInstance> queryForIssueInstance(String sql, Object... args) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        try {
+            connection = ConnectionUtil.getConnection();
+            statement = connection.prepareStatement(sql);
+            for (int i = 0; i < args.length; i++) {
+                statement.setObject(i + 1, args[i]);
+            }
+            rs = statement.executeQuery();
+            List<IssueInstance> list = new ArrayList<>();
+            while (rs.next()) {
+                IssueInstance issueInstance = new IssueInstance(
+                        rs.getInt("issueInstanceId"),
+                        rs.getInt("issueCaseId"),
+                        rs.getInt("commitId"),
+                        EnumUtil.IssueInstanceStatusString2Enum(rs.getString("issueInstanceStatus")),
+                        rs.getString("fileName"));
+                list.add(issueInstance);
+            }
+            return list;
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             ConnectionUtil.closeResource(connection, statement, rs);
         }

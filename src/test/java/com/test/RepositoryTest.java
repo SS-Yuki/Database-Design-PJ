@@ -11,7 +11,7 @@ public class RepositoryTest {
 
     @Test
     public void testInsert() {
-        Repository repository = new Repository("test_!!", "test!");
+        Repository repository = new Repository(0, "test_!!", "test!");
         RepositoryDao repositoryDao = new RepositoryDaoImpl();
         repositoryDao.insert(repository);
     }
@@ -35,7 +35,7 @@ public class RepositoryTest {
 
     @Test
     public void testServiceInsert() {
-        Repository repository = new Repository("insert_name2", "insert_base_dir");
+        Repository repository = new Repository(0, "insert_name2", "insert_base_dir");
         RepositoryService repositoryService = new RepositoryServiceImpl();
         int id = repositoryService.insert(repository);
         System.out.println(id);

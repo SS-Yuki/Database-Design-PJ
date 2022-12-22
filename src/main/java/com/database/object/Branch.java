@@ -11,12 +11,6 @@ public class Branch {
 
     public Branch() {
     }
-
-    public Branch(String branchName, int repositoryId) {
-        this.branchName = branchName;
-        this.repositoryId = repositoryId;
-    }
-
     public Branch(int branchId, String branchName, int repositoryId) {
         this.branchId = branchId;
         this.branchName = branchName;

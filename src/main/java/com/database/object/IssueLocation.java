@@ -7,6 +7,9 @@ public class IssueLocation {
     private int startLine;
     private int endLine;
 
+    public IssueLocation() {
+    }
+
     public IssueLocation(int issueInstanceId, int locationOrder, int startLine, int endLine) {
         this.issueInstanceId = issueInstanceId;
         this.locationOrder = locationOrder;

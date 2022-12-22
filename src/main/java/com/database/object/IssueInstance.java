@@ -13,11 +13,7 @@ public class IssueInstance {
 
     private String fileName;
 
-    public IssueInstance(int commitId, int issueCaseId, IssueInstanceStatus issueInstanceStatus, String fileName) {
-        this.commitId = commitId;
-        this.issueCaseId = issueCaseId;
-        this.issueInstanceStatus = issueInstanceStatus;
-        this.fileName = fileName;
+    public IssueInstance() {
     }
 
     public IssueInstance(int issueInstanceId, int commitId, int issueCaseId, IssueInstanceStatus issueInstanceStatus, String fileName) {

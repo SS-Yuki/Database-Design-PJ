@@ -14,7 +14,7 @@ public class BranchTest {
 
     @Test
     public void testInsert() {
-        Branch branch = new Branch("test_branch", 1);
+        Branch branch = new Branch(0, "test_branch", 1);
         branchDao.insert(branch);
     }
 
@@ -35,7 +35,7 @@ public class BranchTest {
 
     @Test
     public void testServiceInsert() {
-        Branch branch = new Branch("insert_test", 1);
+        Branch branch = new Branch(0, "insert_test", 1);
         int id = branchService.insert(branch);
         System.out.println(id);
     }

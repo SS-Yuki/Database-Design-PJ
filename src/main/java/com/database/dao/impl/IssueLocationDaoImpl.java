@@ -10,7 +10,7 @@ public class IssueLocationDaoImpl implements IssueLocationDao {
 
     @Override
     public void insert(IssueLocation issueLocation) {
-        String sql = "insert into issue_loaction (issueInstanceId, locationOrder, startLine, endLine) values (?, ?, ?, ?)";
+        String sql = "insert into issue_location (issueInstanceId, locationOrder, startLine, endLine) values (?, ?, ?, ?)";
         JDBCUtil.update(sql, issueLocation.getIssueInstanceId(), issueLocation.getLocationOrder(), issueLocation.getStartLine(), issueLocation.getEndLine());
     }
 

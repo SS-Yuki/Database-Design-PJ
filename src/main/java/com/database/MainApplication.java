@@ -8,25 +8,28 @@ import java.util.Scanner;
 
 public class MainApplication {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
+//        InitUtil.createTable();
+//        SonarService sonarService = new SonarServiceImpl();
+//        printHelp();
+//        Scanner scanner = new Scanner(System.in);
+//        String command = "";
+//        boolean flag = true;
+//        while (flag) {
+//            command = scanner.nextLine();
+//            switch (command) {
+////                case "help": printHelp(); break;
+////                case "latest": sonarService.showLatestInfo(0, "");
+////                case "commit": sonarService.showInfoByCommit(0); break;
+////                case "time": sonarService.showCaseByTime(null, null); break;
+////                case "commiter": sonarService.showCaseByCommiter(""); break;
+//                case "import": sonarService.importRepository("C:\\Users\\yuki\\Desktop\\1", "SonarTest"); break;
+////                case "exit": flag = false; break;
+//            }
+//        }
         InitUtil.createTable();
-        SonarService sonarService = new SonarServiceImpl();
-        printHelp();
-        Scanner scanner = new Scanner(System.in);
-        String command = "";
-        boolean flag = true;
-        while (flag) {
-            command = scanner.nextLine();
-            switch (command) {
-//                case "help": printHelp(); break;
-//                case "latest": sonarService.showLatestInfo(0, "");
-//                case "commit": sonarService.showInfoByCommit(0); break;
-//                case "time": sonarService.showCaseByTime(null, null); break;
-//                case "commiter": sonarService.showCaseByCommiter(""); break;
-//                case "import": sonarService.importRepository("", ""); break;
-//                case "exit": flag = false; break;
-            }
-        }
+        SonarServiceImpl s = new SonarServiceImpl();
+        s.importIssue(1, "C:\\Users\\yuki\\Desktop\\1\\SonarTest");
     }
 
     private static void printHelp() {

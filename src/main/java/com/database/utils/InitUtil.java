@@ -11,7 +11,7 @@ import static java.sql.DriverManager.getConnection;
 
 public class InitUtil {
     //相对地址
-    private static final String InitSqlFile = "src/main/resources/create_table.sql";
+    private static final String InitSqlFile = "src/main/resources/repository.sql";
 
     public static void createTable(){
         try{

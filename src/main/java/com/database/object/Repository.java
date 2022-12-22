@@ -9,11 +9,6 @@ public class Repository {
     public Repository() {
     }
 
-    public Repository(String repositoryName, String baseDir) {
-        this.repositoryName = repositoryName;
-        this.baseDir = baseDir;
-    }
-
     public Repository(int repositoryId, String repositoryName, String baseDir) {
         this.repositoryId = repositoryId;
         this.repositoryName = repositoryName;

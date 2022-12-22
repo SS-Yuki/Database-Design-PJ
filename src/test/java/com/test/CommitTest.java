@@ -18,7 +18,7 @@ public class CommitTest {
 
     @Test
     public void testInsert() {
-        Commit commit = new Commit("hhhhhash", new Date(), "me", 1);
+        Commit commit = new Commit(0, "hhhhhash", new Date(), "me", 1);
         commitDao.insert(commit);
     }
 
@@ -39,7 +39,7 @@ public class CommitTest {
 
     @Test
     public void testServiceInsert() {
-        Commit commit = new Commit("hhhhhhhhhhhhash", new Date(), "me", 1);
+        Commit commit = new Commit(0, "hhhhhhhhhhhhash", new Date(), "me", 1);
         int id = commitService.insert(commit);
         System.out.println(id);
     }

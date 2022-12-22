@@ -14,13 +14,6 @@ public class Commit {
     public Commit() {
     }
 
-    public Commit(String commitHash, Date commitTime, String commiter, int branchId) {
-        this.commitHash = commitHash;
-        this.commitTime = commitTime;
-        this.commiter = commiter;
-        this.branchId = branchId;
-    }
-
     public Commit(int commitId, String commitHash, Date commitTime, String commiter, int branchId) {
         this.commitId = commitId;
         this.commitHash = commitHash;

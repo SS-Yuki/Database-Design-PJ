@@ -12,10 +12,7 @@ public class IssueCase {
     private int appearCommitId;
     private int solveCommitId;
 
-    public IssueCase(IssueCaseStatus issueCaseStatus, IssueCaseType issueCaseType, int appearCommitId) {
-        this.issueCaseStatus = issueCaseStatus;
-        this.issueCaseType = issueCaseType;
-        this.appearCommitId = appearCommitId;
+    public IssueCase() {
     }
 
     public IssueCase(int issueCaseId, IssueCaseStatus issueCaseStatus, IssueCaseType issueCaseType, int appearCommitId, int solveCommitId) {

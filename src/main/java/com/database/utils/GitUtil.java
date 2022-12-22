@@ -41,7 +41,7 @@ public final class GitUtil {
         ArrayList<Branch> list = new ArrayList<Branch>();
 
         refs.forEach(ref -> {
-            Branch branch = new Branch(ref.getName().substring(GitBranchType.LOCAL.prefix.length()), repositoryId);
+            Branch branch = new Branch(0, ref.getName().substring(GitBranchType.LOCAL.prefix.length()), repositoryId);
             System.out.println(ref.getName().substring(GitBranchType.LOCAL.prefix.length()));
         });
     }
@@ -58,7 +58,7 @@ public final class GitUtil {
         ArrayList<Commit> list = new ArrayList<Commit>();
         while (logIterator.hasNext()) {
             RevCommit commitFromPj = logIterator.next();
-            Commit commitForImport = new Commit(
+            Commit commitForImport = new Commit(0,
                     commitFromPj.getName(),
                     commitFromPj.getAuthorIdent().getWhen(),
                     commitFromPj.getAuthorIdent().getName(),
