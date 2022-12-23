@@ -51,10 +51,12 @@ public class IssueUtil {
         //获取issue数量
         int pageSize = 100;
         int issueTotal = sonarIssueResult.getIntValue("total");
+        System.out.println(issueTotal);
         int pages = issueTotal % pageSize > 0 ? issueTotal / pageSize + 1 : issueTotal / pageSize;
         for (int i = 1; i <= pages; i++) {
             JSONObject sonarResult = getSonarIssueResults("repositoryId" + repositoryId + "_" + "branchId" + branchId + "_" + "commitId" + commitId, i);
             JSONArray sonarRawIssues = sonarResult.getJSONArray("issues");
+            System.out.println("---" + sonarRawIssues.size());
 
             for (int j = 0; j < sonarRawIssues.size(); j++) {
                 JSONObject sonarIssue = sonarRawIssues.getJSONObject(j);
@@ -128,40 +130,26 @@ public class IssueUtil {
     public static List<Location> getLocations(JSONObject issue) throws Exception {
         int startLine = 0;
         int endLine = 0;
-        String sonarPath;
-        String[] sonarComponents;
-        String filePath = null;
         List<Location> locations = new ArrayList<>();
         JSONArray flows = issue.getJSONArray("flows");
         if (flows.size() == 0) {
-            //第一种针对issue中的textRange存储location
             JSONObject textRange = issue.getJSONObject("textRange");
             if (textRange != null) {
                 startLine = textRange.getIntValue("startLine");
                 endLine = textRange.getIntValue("endLine");
             } else {
-                // 无 location 行号信息的 issue 过滤掉
                 return new ArrayList<>();
             }
-
-            sonarPath = issue.getString("component");
-            if (sonarPath != null) {
-                sonarComponents = sonarPath.split(":");
-                if (sonarComponents.length >= 2) {
-                    filePath = sonarComponents[sonarComponents.length - 1];
-                }
-            }
-
             Location mainLocation = getLocation(startLine, endLine);
             locations.add(mainLocation);
-        } else {
-            //第二种针对issue中的flows中的所有location存储
+        }
+        else {
             for (int i = 0; i < flows.size(); i++) {
                 JSONObject flow = flows.getJSONObject(i);
                 JSONArray flowLocations = flow.getJSONArray("locations");
-                //一个flows里面有多个locations， locations是一个数组，目前看sonar的结果每个locations都是一个location，但是不排除有多个。
                 for (int j = 0; j < flowLocations.size(); j++) {
                     JSONObject flowLocation = flowLocations.getJSONObject(j);
+
                     String flowComponent = flowLocation.getString("component");
                     JSONObject flowTextRange = flowLocation.getJSONObject("textRange");
                     if (flowTextRange == null || flowComponent == null) {
@@ -169,13 +157,6 @@ public class IssueUtil {
                     }
                     int flowStartLine = flowTextRange.getIntValue("startLine");
                     int flowEndLine = flowTextRange.getIntValue("endLine");
-                    String flowFilePath = null;
-
-                    String[] flowComponents = flowComponent.split(":");
-                    if (flowComponents.length >= 2) {
-                        flowFilePath = flowComponents[flowComponents.length - 1];
-                    }
-
                     Location location = getLocation(flowStartLine, flowEndLine);
                     locations.add(location);
                 }

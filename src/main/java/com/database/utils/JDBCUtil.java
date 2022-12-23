@@ -74,6 +74,7 @@ public class JDBCUtil {
             // 3、填充sql占位符
             for (int i = 0; i < args.length; i++) {
                 statement.setObject(i + 1, args[i]);
+//                System.out.println("--" + args[i]);
             }
             // 4、执行sql语句
             statement.executeUpdate();

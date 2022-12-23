@@ -29,9 +29,9 @@ public final class GitUtil {
 
     private GitUtil() {}
 
-    public static Git getGit(String pjName) throws Exception {
+    public static Git getGit(String pathName) throws Exception {
         Git git;
-        git = Git.open(new File(baseDir + File.separator + pjName));
+        git = Git.open(new File(pathName));
         return git;
     }
 

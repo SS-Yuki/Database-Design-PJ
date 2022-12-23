@@ -22,6 +22,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class SonarServiceImpl implements SonarService {
 
@@ -31,6 +32,7 @@ public class SonarServiceImpl implements SonarService {
     private IssueCaseService caseService = new IssueCaseServiceImpl();
     private IssueInstanceService instanceService = new IssueInstanceServiceImpl();
     private IssueLocationService locationService = new IssueLocationServiceImpl();
+
 
     @Override
     public void showInstInfoByCommit(int commit) {
@@ -175,7 +177,6 @@ public class SonarServiceImpl implements SonarService {
             System.out.println(repositoryId + " " + branchId + " " + commitIdList[0] + " " + commitIdList.length );
             // 先读出该分支下第一个commit的issue，入库instance和case
             List<RawIssue> preRawIssues = IssueUtil.getSonarResult(repositoryId, branchId, commitIdList[0]);
-            AnalyzerUtil.addExtraAttributeInRawIssues(preRawIssues, pathName);
             List<IssueInstance> preIssueInstances = new ArrayList<>();
 
             // 通过得到的 raw issue，封装case和instance
@@ -191,15 +192,26 @@ public class SonarServiceImpl implements SonarService {
             }
 
             // 开始处理该分支下后续的版本号
+            System.out.println(commitIdList.length);
             for (int i = 1; i < commitIdList.length; i++) {
                 int commitId = commitIdList[i];
+                Git git = Git.open(new File(pathName));
+                try {
+                    git.checkout().setName(commitService.getHashById(commitId)).call();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
                 // 获取该commit下的raw issue
                 List<RawIssue> curRawIssues = IssueUtil.getSonarResult(repositoryId, branchId, commitId);
-                AnalyzerUtil.addExtraAttributeInRawIssues(curRawIssues, pathName);
                 List<IssueInstance> curIssueInstances = new ArrayList<>();
 
                 // 进行与pre的匹配，若匹配上则不新建case
+                System.out.println(commitId+"size1:" + preRawIssues.size() + "size2:" + curRawIssues.size() + "path:" + pathName);
+//                IssueMatcher.match(preRawIssues, curRawIssues, pathName);
+                AnalyzerUtil.addExtraAttributeInRawIssues(preRawIssues, pathName);
+                AnalyzerUtil.addExtraAttributeInRawIssues(curRawIssues, pathName);
+
                 RawIssueMatcher.match(preRawIssues, curRawIssues, addAllMethodsAndFields(pathName));
 
                 // 遍历并入库所有的instance，部分case
@@ -229,7 +241,8 @@ public class SonarServiceImpl implements SonarService {
                         IssueInstance preIssueInstance = preIssueInstances.get(j);
                         int caseId = preIssueInstance.getIssueCaseId();
                         IssueCase issueCase = caseService.getCaseById(caseId);
-                        issueCase.setSolveCommitId(preIssueInstance.getCommitId());
+                        issueCase.setSolveCommitId(commitId);
+                        issueCase.setIssueCaseStatus(IssueCaseStatus.SOLVED);
                         caseService.update(issueCase);
 
                         IssueInstance curIssueInstance = importInstanceAndLocation(commitId, caseId, IssueInstanceStatus.DISAPPEAR, preRawIssue);
@@ -265,7 +278,7 @@ public class SonarServiceImpl implements SonarService {
     }
 
     //递归遍历工程文件夹
-    public Set<String> addAllMethodsAndFields(String pathName) throws IOException {
+    private Set<String> addAllMethodsAndFields(String pathName) throws IOException {
         File file = new File(pathName);
         File[] files = file.listFiles();
         Set<String> res = new HashSet<>();
@@ -276,7 +289,7 @@ public class SonarServiceImpl implements SonarService {
                 res.addAll(out);
             }
             else {
-                res = AstParserUtil.getMethodsAndFieldsInFile(file1.getAbsolutePath());
+                res.addAll(AstParserUtil.getMethodsAndFieldsInFile(file1.getAbsolutePath()));
             }
         }
         return res;

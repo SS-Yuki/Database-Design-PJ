@@ -5,31 +5,32 @@ import com.database.sonar.impl.SonarServiceImpl;
 import com.database.utils.InitUtil;
 
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MainApplication {
 
     public static void main(String[] args) throws Exception {
-//        InitUtil.createTable();
-//        SonarService sonarService = new SonarServiceImpl();
-//        printHelp();
-//        Scanner scanner = new Scanner(System.in);
-//        String command = "";
-//        boolean flag = true;
-//        while (flag) {
-//            command = scanner.nextLine();
-//            switch (command) {
-////                case "help": printHelp(); break;
-////                case "latest": sonarService.showLatestInfo(0, "");
-////                case "commit": sonarService.showInfoByCommit(0); break;
-////                case "time": sonarService.showCaseByTime(null, null); break;
-////                case "commiter": sonarService.showCaseByCommiter(""); break;
-//                case "import": sonarService.importRepository("C:\\Users\\yuki\\Desktop\\1", "SonarTest"); break;
-////                case "exit": flag = false; break;
-//            }
-//        }
         InitUtil.createTable();
-        SonarServiceImpl s = new SonarServiceImpl();
-        s.importIssue(1, "C:\\Users\\yuki\\Desktop\\1\\SonarTest");
+        Logger logger = Logger.getLogger("org.eclipse.jgit");
+        logger.setLevel(Level.INFO);
+        SonarService sonarService = new SonarServiceImpl();
+        printHelp();
+        Scanner scanner = new Scanner(System.in);
+        String command = "";
+        boolean flag = true;
+        while (flag) {
+            command = scanner.nextLine();
+            switch (command) {
+                case "help": printHelp(); break;
+                case "latest": sonarService.showLatestInstInfo(0, "");
+                case "commit": sonarService.showCaseInfoByCommit(0); break;
+                case "time": sonarService.showCaseInfoByTime(null, null); break;
+                case "commiter": sonarService.showCaseInfoByCommiter(""); break;
+                case "import": sonarService.importRepository("C:\\Users\\yuki\\Desktop\\1", "SonarTest"); break;
+                case "exit": flag = false; break;
+            }
+        }
     }
 
     private static void printHelp() {

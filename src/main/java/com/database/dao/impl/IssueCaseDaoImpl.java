@@ -25,7 +25,7 @@ public class IssueCaseDaoImpl implements IssueCaseDao {
 
     @Override
     public void update(IssueCase issueCase) {
-        String sql = "update issue_case set issueCaseStatus = ?, issueCaseType = ?, appearCommitId = ?, solveCommitId = ? where caseId = ?";
+        String sql = "update issue_case set issueCaseStatus = ?, issueCaseType = ?, appearCommitId = ?, solveCommitId = ? where issueCaseId = ?";
         JDBCUtil.update(sql, EnumUtil.Enum2String(issueCase.getIssueCaseStatus()), EnumUtil.Enum2String(issueCase.getIssueCaseType()), issueCase.getAppearCommitId(), issueCase.getSolveCommitId(), issueCase.getIssueCaseId());
     }
 
