@@ -35,7 +35,7 @@ public class IssueInstanceServiceImpl implements IssueInstanceService {
 
     @Override
     public Date getSolveTimeById(int inst_id) {
-        return null;
+        return issueInstanceDao.querySolveTimeById(inst_id);
     }
 
     @Override

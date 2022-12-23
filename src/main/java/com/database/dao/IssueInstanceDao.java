@@ -16,5 +16,7 @@ public interface IssueInstanceDao {
 
     Date queryAppearTimeById(int id);
 
+    Date querySolveTimeById(int id);
+
     IssueCaseType queryTypeById(int id);
 }

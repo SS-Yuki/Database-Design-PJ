@@ -32,7 +32,16 @@ public class IssueInstanceDaoImpl implements IssueInstanceDao {
     public Date queryAppearTimeById(int id) {
         String sql = "select commitTime from git_commit\n" +
                 "join issue_case i on git_commit.commitId = i.appearCommitId\n" +
-                "join issue_instance i2 on i.caseId = i2.caseId\n" +
+                "join issue_instance i2 on i.issueCaseId = i2.issueCaseId\n" +
+                "where i2.issueInstanceId = ?";
+        return JDBCUtil.getValue(sql, id);
+    }
+
+    @Override
+    public Date querySolveTimeById(int id) {
+        String sql = "select commitTime from git_commit\n" +
+                "join issue_case i on git_commit.commitId = i.solveCommitId\n" +
+                "join issue_instance i2 on i.issueCaseId = i2.issueCaseId\n" +
                 "where i2.issueInstanceId = ?";
         return JDBCUtil.getValue(sql, id);
     }
@@ -40,9 +49,9 @@ public class IssueInstanceDaoImpl implements IssueInstanceDao {
     @Override
     public IssueCaseType queryTypeById(int id) {
         String sql = "select issueCaseType from issue_case\n" +
-                "join issue_instance i on issue_case.caseId = i.caseId\n" +
+                "join issue_instance i on issue_case.issueCaseId = i.issueCaseId\n" +
                 "where issueInstanceId = ?";
-        return JDBCUtil.getValue(sql, id);
+        return EnumUtil.IssueCaseTypeString2Enum(JDBCUtil.getValue(sql, id));
     }
 
 }

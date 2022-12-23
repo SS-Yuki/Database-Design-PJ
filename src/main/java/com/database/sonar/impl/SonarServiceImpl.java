@@ -341,8 +341,15 @@ public class SonarServiceImpl implements SonarService {
             if (solveCommit == null) time = (new Date().getTime() - appearCommit.getCommitTime().getTime());
             else time = solveCommit.getCommitTime().getTime() - appearCommit.getCommitTime().getTime();
             int day = (int)(time / (24 * 3600 * 1000)) + 1;
-            System.out.printf("抽象缺陷id：%d，缺陷类型：%s，引入版本：%s，解决版本：%s，存续时间：约%d天\n",
-                    issueCase.getIssueCaseId(), issueCase.getIssueCaseType(), appearCommit.getCommitHash(), solveCommit.getCommitHash(), day);
+            if (solveCommit == null) {
+                System.out.printf("抽象缺陷id：%d，缺陷类型：%s，引入版本：%s，未解决，存续时间：约%d天\n",
+                        issueCase.getIssueCaseId(), issueCase.getIssueCaseType(), appearCommit.getCommitHash(), day);
+            }
+            else {
+                System.out.printf("抽象缺陷id：%d，缺陷类型：%s，引入版本：%s，解决版本：%s，存续时间：约%d天\n",
+                        issueCase.getIssueCaseId(), issueCase.getIssueCaseType(), appearCommit.getCommitHash(), solveCommit.getCommitHash(), day);
+            }
+
         });
         System.out.printf("共引入%d个新的缺陷\n", appear.size());
 
@@ -401,7 +408,7 @@ public class SonarServiceImpl implements SonarService {
         Map<IssueCaseType, List<IssueInstance>> classifyInstances = classifyByType(instances);
         System.out.println("按类型分类（只显示缺陷实例id）：");
         classifyInstances.forEach((issueCaseType, instances1) -> {
-            System.out.printf("缺陷类型：%s\n", issueCaseType);
+            System.out.printf("缺陷类型：%s, 总计: %d\n", issueCaseType, instances1.size());
             System.out.printf("缺陷id：[");
             instances1.forEach(issueInstance -> {
                 System.out.printf("%d, ", issueInstance.getIssueInstanceId());

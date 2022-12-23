@@ -3,13 +3,14 @@ package com.database.object;
 public class Repository {
 
     private int repositoryId;
-    private String repositoryName;
     private String baseDir;
+    private String repositoryName;
+
 
     public Repository() {
     }
 
-    public Repository(int repositoryId, String repositoryName, String baseDir) {
+    public Repository(int repositoryId, String baseDir, String repositoryName) {
         this.repositoryId = repositoryId;
         this.repositoryName = repositoryName;
         this.baseDir = baseDir;

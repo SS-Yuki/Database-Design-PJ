@@ -12,9 +12,6 @@ public class RepositoryServiceImpl implements RepositoryService {
     @Override
     public int insert(Repository repository) {
         // 插入记录
-        repositoryDao.insert(repository);
-        // 根据name和dir确定id
-        Repository queryRepository = repositoryDao.queryByNameAndDir(repository.getRepositoryName(), repository.getBaseDir());
-        return queryRepository.getRepositoryId();
+        return repositoryDao.insert(repository);
     }
 }
