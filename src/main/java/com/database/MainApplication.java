@@ -6,8 +6,6 @@ import com.database.utils.InitUtil;
 
 import java.util.Date;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class MainApplication {
 

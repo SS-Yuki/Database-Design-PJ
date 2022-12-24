@@ -1,5 +1,9 @@
 package com.database.utils;
 
+import com.alibaba.druid.pool.DruidDataSourceFactory;
+
+import javax.sql.DataSource;
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -13,23 +17,29 @@ import java.util.Properties;
  */
 public class ConnectionUtil {
 
+    private static DataSource dataSource = null;
+
+    // 通过静态代码块，初始化dataSource
+    static {
+        // 1、读取配置文件
+        Properties properties = new Properties();
+        InputStream is = ClassLoader.getSystemClassLoader().getResourceAsStream("druid.properties");
+        try {
+            properties.load(is);
+            // 2、根据properties对象创建dataSource对象
+            dataSource = DruidDataSourceFactory.createDataSource(properties);
+            System.out.println("数据库连接池初始化完成");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     // 获取单个数据库连接
     public static Connection getConnection() throws Exception {
-        // 1、读取配置文件
-        InputStream is = ClassLoader.getSystemClassLoader().getResourceAsStream("mysql.properties");
-        Properties properties = new Properties();
-        properties.load(is);
-
-        String url = properties.getProperty("mysql.url");
-        String user = properties.getProperty("mysql.username");
-        String password = properties.getProperty("mysql.password");
-        String driverClass = properties.getProperty("mysql.driverClass");
-
-        // 2、加载并注册驱动
-        Class.forName(driverClass);
-
-        // 3、获取连接
-        Connection connection = DriverManager.getConnection(url, user, password);
+        Connection connection = null;
+        if (dataSource != null) {
+            connection = dataSource.getConnection();
+        }
         return connection;
     }
 
