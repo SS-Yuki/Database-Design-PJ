@@ -34,7 +34,7 @@ public class CommitDaoImpl implements CommitDao {
     @Override
     public int queryLatestIdByBranchId(int branch_id) {
         // TODO:
-        String sql = "";
-        return 0;
+        String sql = "select max(commitId) from git_commit where branchId = ?";
+        return JDBCUtil.getValue(sql, branch_id);
     }
 }
