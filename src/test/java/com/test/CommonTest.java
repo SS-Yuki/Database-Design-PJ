@@ -1,5 +1,6 @@
 package com.test;
 
+import com.database.command.SonarCommand;
 import org.junit.Test;
 
 import java.util.*;
@@ -70,4 +71,22 @@ public class CommonTest {
         });
     }
 
+    @Test
+    public void testString2Integer() {
+        String s = "sdfg";
+        System.out.println(Integer.valueOf(s));
+    }
+
+    @Test
+    public void testSonarCommand() {
+        SonarCommand command = null;
+        String line = "time 2022-12-01 2022-12-30";
+        String[] strings = line.split(" ");
+        try {
+            command = SonarCommand.getSonarCommand(strings[0], strings);
+            System.out.println(command);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
 }
