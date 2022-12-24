@@ -29,12 +29,12 @@ public class SonarCommand {
             }
             case "commit-inst": {
                 // 从strs中得到commit hash
-                params.add(strs[1]);
+                params.add(Integer.valueOf(strs[1]));
                 return new SonarCommand(SonarCommandType.COMMIT_INST, params);
             }
             case "commit-case": {
                 // 从strs中得到commit hash
-                params.add(strs[1]);
+                params.add(Integer.valueOf(strs[1]));
                 return new SonarCommand(SonarCommandType.COMMIT_CASE, params);
             }
             case "time": {
