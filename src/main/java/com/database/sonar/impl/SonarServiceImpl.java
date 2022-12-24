@@ -132,6 +132,7 @@ public class SonarServiceImpl implements SonarService {
                     int branchId = branchService.insert(branch);
                     // 切换到该分支
                     git.checkout().setCreateBranch(false).setName(branchName).call();
+
                     // 从日志中获得commit信息
                     List<RevCommit> commits = new ArrayList<>();
                     for (RevCommit commit : git.log().call()) {
@@ -143,6 +144,7 @@ public class SonarServiceImpl implements SonarService {
                     int firstCommitId = importCommitAndScanner(commits.get(commits.size()-1), branchId, repositoryId, pathName);
 
                     List<RawIssue> preRawIssues = IssueUtil.getSonarResult(repositoryId, branchId, firstCommitId);
+                    System.out.println("--" + firstCommitId + "--" + preRawIssues.size());
                     List<IssueInstance> preIssueInstances = new ArrayList<>();
 
                     // 通过得到的 raw issue，封装case和instance
@@ -162,18 +164,19 @@ public class SonarServiceImpl implements SonarService {
                         // new一个新的commit并将其入库
                         int commitId = importCommitAndScanner(commit, branchId, repositoryId, pathName);
 
-                        GitUtil.gitCheckout(pathName, commit.getName());
+                        //GitUtil.gitCheckout(pathName, commit.getName());
 
                         // 获取该commit下的raw issue
                         List<RawIssue> curRawIssues = IssueUtil.getSonarResult(repositoryId, branchId, commitId);
+                        System.out.println("--" + commitId + "--" + curRawIssues.size());
                         List<IssueInstance> curIssueInstances = new ArrayList<>();
 
                         // 进行与pre的匹配，若匹配上则不新建case
                         AnalyzerUtil.addExtraAttributeInRawIssues(preRawIssues, pathName);
                         AnalyzerUtil.addExtraAttributeInRawIssues(curRawIssues, pathName);
 
-//                        preRawIssues.forEach(iss-> System.out.println(iss.getLocations()));
-//                        curRawIssues.forEach(iss-> System.out.println(iss.getLocations()));
+//                        preRawIssues.forEach(iss-> iss.getLocations().forEach(lo->System.out.println(lo.getCode())));
+//                        curRawIssues.forEach(iss-> iss.getLocations().forEach(lo->System.out.println(lo.getCode())));
                         RawIssueMatcher.match(preRawIssues, curRawIssues, addAllMethodsAndFields(pathName));
 
                         // 遍历并入库所有的instance，部分case
@@ -235,6 +238,7 @@ public class SonarServiceImpl implements SonarService {
         return true;
     }
 
+
     private int importCommitAndScanner(RevCommit commit, int branchId, int repositoryId, String pathName) throws Exception {
         Commit commitInsert = new Commit(0, commit.getName(), commit.getAuthorIdent().getWhen(), commit.getAuthorIdent().getName(), branchId);
         int commitId = commitService.insert(commitInsert);
@@ -254,8 +258,6 @@ public class SonarServiceImpl implements SonarService {
         Git git = Git.open(new File(pathName));
         // 遍历分支，逐分支逐commit入库issue
         for (int branchId:branchIdList) {
-            if (branchId == 1) git.checkout().setName("main").call();
-            else git.checkout().setName("test").call();
             // 获取该分支下的所有commit id（这里是由我们维护的id）
             int[] commitIdList = commitService.getIdByBranchId(branchId);
             // 先读出该分支下第一个commit的issue，入库instance和case
@@ -283,7 +285,6 @@ public class SonarServiceImpl implements SonarService {
                 int commitId = commitIdList[i];
                 try {
                     git.checkout().setName(commitService.getHashById(commitId)).call();
-                    System.out.println(commitId + "--" + commitService.getHashById(commitId));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -295,8 +296,6 @@ public class SonarServiceImpl implements SonarService {
                 // 进行与pre的匹配，若匹配上则不新建case
                 AnalyzerUtil.addExtraAttributeInRawIssues(preRawIssues, pathName);
                 AnalyzerUtil.addExtraAttributeInRawIssues(curRawIssues, pathName);
-                System.out.println(preRawIssues);
-                System.out.println(curRawIssues);
 
                 RawIssueMatcher.match(preRawIssues, curRawIssues, addAllMethodsAndFields(pathName));
 
