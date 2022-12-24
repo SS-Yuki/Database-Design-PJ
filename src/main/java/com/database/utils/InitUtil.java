@@ -24,6 +24,7 @@ public class InitUtil {
             reader.close();
             batchDate(sqlList);
         } catch (Exception e){
+            System.out.println(e);
             System.out.println("建表失败");
             return;
         }
@@ -33,6 +34,7 @@ public class InitUtil {
 
     private static void batchDate(ArrayList<String> sqlList) throws Exception {
         Connection connection = ConnectionUtil.getConnection();
+        System.out.println("...");
         Statement st = connection.createStatement();
         for (String sql : sqlList) {
             st.addBatch(sql);

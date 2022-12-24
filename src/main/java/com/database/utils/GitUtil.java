@@ -12,8 +12,6 @@ import java.util.*;
 
 public final class GitUtil {
 
-    private static String baseDir = "C:\\GitCloneRepository";
-
     public enum GitBranchType {
         LOCAL("refs/heads/"),
         REMOTE("refs/remotes/origin/");
@@ -33,6 +31,11 @@ public final class GitUtil {
         Git git;
         git = Git.open(new File(pathName));
         return git;
+    }
+
+    public static void gitCheckout(String pathName, String des) throws Exception {
+        Git git = getGit(pathName);
+        git.checkout().setName(des).call();
     }
 
     public static void getAllBranch(Git git, int repositoryId) throws GitAPIException {

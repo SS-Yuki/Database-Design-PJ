@@ -31,7 +31,7 @@ public class MainApplication {
                 // 转化成功，正常处理
                 switch (command.getCommandType()) {
                     case HELP: printHelp(); break;
-                    case LATEST: sonarService.showLatestInstInfo((Integer) params.get(0), (String) params.get(1));
+                    case LATEST: sonarService.showLatestInstInfo((Integer) params.get(0), (String) params.get(1)); break;
                     case COMMIT_INST: sonarService.showInstInfoByCommit((Integer) params.get(0)); break;
                     case COMMIT_CASE: sonarService.showCaseInfoByCommit((Integer) params.get(0)); break;
                     case TIME: sonarService.showCaseInfoByTime((Date) params.get(0), (Date) params.get(1)); break;

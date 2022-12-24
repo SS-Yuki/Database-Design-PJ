@@ -39,8 +39,8 @@ public class IssueUtil {
         String cdStr = "cmd /c cd " + pathName;
         String componentKeys = "repositoryId" + repositoryId + "_" + "branchId" + branchId + "_" + "commitId" + commitId;
         String scannerStr = "sonar-scanner -D sonar.projectKey=" + componentKeys;
-        System.out.println(componentKeys);
-        System.out.println(CmdUtil.run(cdStr + " && " + scannerStr));
+        CmdUtil.run(cdStr + " && " + scannerStr);
+        System.out.println(componentKeys + "扫描完成");
     }
 
     //根据Id 从云端获取所有的Json, 并解析成RawIssue
@@ -51,12 +51,10 @@ public class IssueUtil {
         //获取issue数量
         int pageSize = 100;
         int issueTotal = sonarIssueResult.getIntValue("total");
-        System.out.println(issueTotal);
         int pages = issueTotal % pageSize > 0 ? issueTotal / pageSize + 1 : issueTotal / pageSize;
         for (int i = 1; i <= pages; i++) {
             JSONObject sonarResult = getSonarIssueResults("repositoryId" + repositoryId + "_" + "branchId" + branchId + "_" + "commitId" + commitId, i);
             JSONArray sonarRawIssues = sonarResult.getJSONArray("issues");
-            System.out.println("---" + sonarRawIssues.size());
 
             for (int j = 0; j < sonarRawIssues.size(); j++) {
                 JSONObject sonarIssue = sonarRawIssues.getJSONObject(j);
