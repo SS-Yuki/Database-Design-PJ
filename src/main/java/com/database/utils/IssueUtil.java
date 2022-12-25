@@ -46,17 +46,17 @@ public class IssueUtil {
     //根据Id 从云端获取所有的Json, 并解析成RawIssue
     public static List<RawIssue> getSonarResult(int repositoryId, int branchId, int commitId) throws Exception {
         List<RawIssue> resultRawIssues = new ArrayList<RawIssue>();
-
-        JSONObject sonarIssueResult = getSonarIssueResults("repositoryId" + repositoryId + "_" + "branchId" + branchId + "_" + "commitId" + commitId, 1);
+        String componentKeys = "repositoryId" + repositoryId + "_" + "branchId" + branchId + "_" + "commitId" + commitId;
+        JSONObject sonarIssueResult = getSonarIssueResults(componentKeys, 1);
         //获取issue数量
         int pageSize = 100;
         int issueTotal = sonarIssueResult.getIntValue("total");
-        System.out.println("--"+issueTotal);
+        System.out.println("total:" + issueTotal);
         int pages = issueTotal % pageSize > 0 ? issueTotal / pageSize + 1 : issueTotal / pageSize;
         for (int i = 1; i <= pages; i++) {
-            JSONObject sonarResult = getSonarIssueResults("repositoryId" + repositoryId + "_" + "branchId" + branchId + "_" + "commitId" + commitId, i);
+            JSONObject sonarResult = getSonarIssueResults(componentKeys, i);
             JSONArray sonarRawIssues = sonarResult.getJSONArray("issues");
-            System.out.println(i + "~~" + sonarRawIssues.size());
+            System.out.println("page" + i + ":" + sonarRawIssues.size());
             for (int j = 0; j < sonarRawIssues.size(); j++) {
                 JSONObject sonarIssue = sonarRawIssues.getJSONObject(j);
 
@@ -84,11 +84,13 @@ public class IssueUtil {
                 resultRawIssues.add(rawIssue);
             }
         }
+        System.out.println(componentKeys + "得到原始缺陷共计" + resultRawIssues.size() + "个");
 
         return resultRawIssues;
     }
 
     private static JSONObject getSonarIssueResults(String componentKeys, int page) throws IOException {
+
 
         String url_s = SEARCH_API + "?" + "componentKeys=" + componentKeys + "&p=" + page + "&additionalFields=_all&s=FILE_LINE&resolved=false";
         URL url = new URL(url_s);

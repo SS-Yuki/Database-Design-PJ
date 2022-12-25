@@ -115,6 +115,7 @@ public class SonarServiceImpl implements SonarService {
             e.printStackTrace();
         }
         // 2、完成repo，branch，commit的入库
+        // 3.扫描commit, 入库issue
         Repository repository = new Repository(0, baseDir, pjName);
         int repositoryId = repositoryService.insert(repository);
         // 获取所有的分支列表
@@ -144,7 +145,6 @@ public class SonarServiceImpl implements SonarService {
                     int firstCommitId = importCommitAndScanner(commits.get(commits.size()-1), branchId, repositoryId, pathName);
 
                     List<RawIssue> preRawIssues = IssueUtil.getSonarResult(repositoryId, branchId, firstCommitId);
-                    System.out.println("--" + firstCommitId + "--" + preRawIssues.size());
                     List<IssueInstance> preIssueInstances = new ArrayList<>();
 
                     // 通过得到的 raw issue，封装case和instance
@@ -168,15 +168,11 @@ public class SonarServiceImpl implements SonarService {
 
                         // 获取该commit下的raw issue
                         List<RawIssue> curRawIssues = IssueUtil.getSonarResult(repositoryId, branchId, commitId);
-                        System.out.println("--" + commitId + "--" + curRawIssues.size());
                         List<IssueInstance> curIssueInstances = new ArrayList<>();
 
                         // 进行与pre的匹配，若匹配上则不新建case
                         AnalyzerUtil.addExtraAttributeInRawIssues(preRawIssues, pathName);
                         AnalyzerUtil.addExtraAttributeInRawIssues(curRawIssues, pathName);
-
-//                        preRawIssues.forEach(iss-> iss.getLocations().forEach(lo->System.out.println(lo.getCode())));
-//                        curRawIssues.forEach(iss-> iss.getLocations().forEach(lo->System.out.println(lo.getCode())));
                         RawIssueMatcher.match(preRawIssues, curRawIssues, addAllMethodsAndFields(pathName));
 
                         // 遍历并入库所有的instance，部分case
@@ -248,6 +244,7 @@ public class SonarServiceImpl implements SonarService {
         // 切换扫描的版本commit
         GitUtil.gitCheckout(pathName, commitHash);
         IssueUtil.scannerCommit(pathName, repositoryId, branchId, commitId);
+        Thread.sleep(8000);
         return commitId;
     }
 
