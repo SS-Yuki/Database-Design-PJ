@@ -1,0 +1,18 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="DatabasePJ:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/DatabasePJ_jar</output-path>
+    <root id="archive" name="DatabasePJ.jar">
+      <element id="module-output" name="DatabasePJ" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../Maven_Repository/com/googlecode/javaewah/JavaEWAH/1.1.7/JavaEWAH-1.1.7.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../Maven_Repository/org/eclipse/jgit/org.eclipse.jgit/5.8.1.202007141445-r/org.eclipse.jgit-5.8.1.202007141445-r.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../Maven_Repository/org/apache/commons/commons-compress/1.19/commons-compress-1.19.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../Maven_Repository/org/slf4j/slf4j-api/1.7.2/slf4j-api-1.7.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../Maven_Repository/mysql/mysql-connector-java/8.0.28/mysql-connector-java-8.0.28.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/issue-1.0.0-jar-with-dependencies.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../Maven_Repository/org/eclipse/jgit/org.eclipse.jgit.archive/5.8.1.202007141445-r/org.eclipse.jgit.archive-5.8.1.202007141445-r.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../Maven_Repository/com/google/protobuf/protobuf-java/3.11.4/protobuf-java-3.11.4.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../Maven_Repository/com/alibaba/fastjson/1.2.15/fastjson-1.2.15.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../Maven_Repository/org/osgi/org.osgi.core/4.3.1/org.osgi.core-4.3.1.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

@@ -1,27 +1,30 @@
 package com.database.utils;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.ArrayList;
-
-import static java.sql.DriverManager.getConnection;
+import java.util.Properties;
 
 public class InitUtil {
     //相对地址
-    private static final String InitSqlFile = "src/main/resources/repository.sql";
+    private static final String InitSqlFile = "repository.properties";
 
     public static void createTable(){
         try{
+            // 1读取配置文件信息
+            InputStream is = ClassLoader.getSystemClassLoader().getResourceAsStream(InitSqlFile);
+            Properties props = new Properties();
+            props.load(is);
+
             ArrayList<String> sqlList=new ArrayList<>();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(InitSqlFile), "UTF-8"));
-            String sqlString = null;
-            while ((sqlString = reader.readLine()) != null) {
-                sqlList.add(sqlString);
-            }
-            reader.close();
+            sqlList.add(props.getProperty("repository"));
+            sqlList.add(props.getProperty("branch"));
+            sqlList.add(props.getProperty("commit"));
+            sqlList.add(props.getProperty("case"));
+            sqlList.add(props.getProperty("instance"));
+            sqlList.add(props.getProperty("location"));
+
             batchDate(sqlList);
         } catch (Exception e){
             System.out.println(e);
@@ -42,10 +45,5 @@ public class InitUtil {
         }
         st.executeBatch();
     }
-
-    public static void main(String[] args) {
-        createTable();
-    }
-
 
 }

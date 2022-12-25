@@ -7,6 +7,53 @@
     <groupId>org.example</groupId>
     <artifactId>DatabasePJ</artifactId>
     <version>1.0-SNAPSHOT</version>
+
+    <build>
+        <!-- 项目最终打包成的名字 -->
+        <finalName>DataBasePj</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <!-- 会在 MANIFEST.MF 中生成 Class-Path 项 -->
+                            <!-- 系统会根据 Class-Path 项配置的路径加载依赖 -->
+                            <addClasspath>true</addClasspath>
+                            <!-- 指定依赖包所在目录，相对于项目最终 Jar 包的路径 -->
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <!-- 指定 MainClass -->
+                            <mainClass>com.database.MainApplication</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <!-- 配置依赖包 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.3.0</version>
+                <!-- 相当于执行 mvn 命令，将依赖打包到指定目录 -->
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <!--将依赖打包至 target 下的 lib 目录-->
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
 
         <!-- mysql驱动 -->
@@ -44,7 +91,7 @@
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit.archive</artifactId>
-            <version>6.4.0.202211300538-r</version>
+            <version>5.8.1.202007141445-r</version>
         </dependency>
 
     </dependencies>
