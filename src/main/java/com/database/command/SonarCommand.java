@@ -50,7 +50,10 @@ public class SonarCommand {
                 return new SonarCommand(SonarCommandType.COMMITER, params);
             }
             case "duration": {
-                // 不需要参数
+                // 需要仓库id、分支name以及时间限制
+                params.add(Integer.valueOf(strs[1]));
+                params.add(strs[2]);
+                params.add(Integer.valueOf(strs[3]));
                 return new SonarCommand(SonarCommandType.DURATION, params);
             }
             case "import": {

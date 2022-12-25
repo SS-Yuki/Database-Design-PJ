@@ -1,6 +1,5 @@
 package com.database.dao.impl;
 
-import com.database.common.IssueCaseStatus;
 import com.database.dao.IssueCaseDao;
 import com.database.object.Commit;
 import com.database.object.IssueCase;
@@ -66,10 +65,11 @@ public class IssueCaseDaoImpl implements IssueCaseDao {
     }
 
     @Override
-    public List<IssueCase> queryAll() {
-        String sql = "select issueCaseId, issueCaseStatus, issueCaseType, appearCommitId, solveCommitId from issue_case";
-        return JDBCUtil.queryForIssueCase(sql);
+    public List<IssueCase> queryByBranchId(int branchId) {
+        String sql = "select issueCaseId, issueCaseStatus, issueCaseType, appearCommitId, solveCommitId from issue_case, git_commit, branch where appearCommitId = git_commit.commitId and git_commit.branchId = branch.branchId and branch.branchId = ?";
+        return JDBCUtil.queryForIssueCase(sql, branchId);
     }
+
 
     @Override
     public Commit queryAppearCommitById(int caseId) {

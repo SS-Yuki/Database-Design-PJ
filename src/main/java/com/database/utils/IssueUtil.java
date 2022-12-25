@@ -51,11 +51,12 @@ public class IssueUtil {
         //获取issue数量
         int pageSize = 100;
         int issueTotal = sonarIssueResult.getIntValue("total");
+        System.out.println("--"+issueTotal);
         int pages = issueTotal % pageSize > 0 ? issueTotal / pageSize + 1 : issueTotal / pageSize;
         for (int i = 1; i <= pages; i++) {
             JSONObject sonarResult = getSonarIssueResults("repositoryId" + repositoryId + "_" + "branchId" + branchId + "_" + "commitId" + commitId, i);
             JSONArray sonarRawIssues = sonarResult.getJSONArray("issues");
-
+            System.out.println(i + "~~" + sonarRawIssues.size());
             for (int j = 0; j < sonarRawIssues.size(); j++) {
                 JSONObject sonarIssue = sonarRawIssues.getJSONObject(j);
 
@@ -78,8 +79,7 @@ public class IssueUtil {
                 rawIssue.setLocations(locations);
                 rawIssue.setCommitId(commitService.getHashById(commitId));
 
-                String rawIssueUuid = RawIssue.generateRawIssueUUID(rawIssue);
-                rawIssue.setUuid(rawIssueUuid);
+                rawIssue.setUuid(String.format("%d_%d_%d_%d", repositoryId, branchId, commitId, pageSize*i+j));
 
                 resultRawIssues.add(rawIssue);
             }
@@ -90,7 +90,7 @@ public class IssueUtil {
 
     private static JSONObject getSonarIssueResults(String componentKeys, int page) throws IOException {
 
-        String url_s = SEARCH_API + "?" + "componentKeys=" + componentKeys + "&page=" + page;
+        String url_s = SEARCH_API + "?" + "componentKeys=" + componentKeys + "&p=" + page + "&additionalFields=_all&s=FILE_LINE&resolved=false";
         URL url = new URL(url_s);
 
         URLConnection connection = url.openConnection();

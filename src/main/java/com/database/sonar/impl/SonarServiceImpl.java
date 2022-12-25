@@ -22,7 +22,6 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class SonarServiceImpl implements SonarService {
 
@@ -32,7 +31,6 @@ public class SonarServiceImpl implements SonarService {
     private IssueCaseService caseService = new IssueCaseServiceImpl();
     private IssueInstanceService instanceService = new IssueInstanceServiceImpl();
     private IssueLocationService locationService = new IssueLocationServiceImpl();
-
 
     @Override
     public void showInstInfoByCommit(int commit) {
@@ -50,10 +48,11 @@ public class SonarServiceImpl implements SonarService {
             System.out.println("分支不存在！");
             return;
         }
-        // 2、获取该分支的最新版本id
-        int commitId = commitService.getLatestByBranchId(branchId);
+        // 2、获取该分支的最新版本
+        Commit commit = commitService.getLatestByBranchId(branchId);
+        System.out.printf("分支%s下最新版本为：%s\n", branchName, commit.getCommitHash());
         // 3、获取特定版本下的信息
-        showInstInfoByCommit(commitId);
+        showInstInfoByCommit(commit.getCommitId());
     }
 
     @Override
@@ -84,22 +83,40 @@ public class SonarServiceImpl implements SonarService {
     }
 
     @Override
-    public void showCaseInfoByDuration() {
-        // 获取存续时长超过一定时间的issue
-        long duration = 30 * 24 * 3600 * 1000;
-        Map<IssueCase, Long> cases = caseService.getCaseByDurationTime(duration);
-        List<IssueCase> caseList = new ArrayList<>();
-        cases.forEach((issueCase, aLong) -> {
-            caseList.add(issueCase);
-        });
+    public void showCaseInfoByDuration(int repositoryId, String branchName, int duration) {
+        // 1、查找分支id
+        int branchId = branchService.getIdByNameAndRepoId(repositoryId, branchName);
+        // 若返回id为0代表该分支不存在，return
+        if (branchId == 0) {
+            System.out.println("分支不存在！");
+            return;
+        }
+        // 2、获取该分支下所有的case
+        List<IssueCase> caseList = caseService.getCaseByBranchId(branchId);
+        // 2、获取存续时长超过一定时间的issue
         Map<IssueCase, Commit> appearHashMap = new HashMap<>();
         Map<IssueCase, Commit> solveHashMap = new HashMap<>();
         getAppearAndSolveHashByCase(caseList, appearHashMap, solveHashMap);
-        System.out.println("存续时间过长的缺陷：");
+        System.out.printf("分支%s中，存续时间超过%d天的缺陷：%d\n", branchName, duration, caseList.size());
         caseList.forEach(issueCase -> {
-            int day = (int) (cases.get(issueCase) / (24 * 3600 * 1000));
-            System.out.printf("抽象缺陷id：%d，缺陷类型：%s，引入版本：%s，解决版本：%s，存续时间：约%d天",
-                    issueCase.getIssueCaseId(), issueCase.getIssueCaseType(), appearHashMap.get(issueCase).getCommitHash(), solveHashMap.get(issueCase).getCommitHash(), day);
+            Commit appearCommit = appearHashMap.get(issueCase);
+            Commit solveCommit = solveHashMap.get(issueCase);
+            // 还未解决
+            if (solveCommit == null) {
+                int day = (int) ((new Date().getTime() - appearCommit.getCommitTime().getTime()) / (24 * 3600 * 1000)) + 1;
+                if (day >= duration) {
+                    System.out.printf("抽象缺陷id：%d，缺陷类型：%s，引入版本：%s，未解决，存续时间：约%d天\n",
+                            issueCase.getIssueCaseId(), issueCase.getIssueCaseType(), appearCommit.getCommitHash(), day);
+                }
+            }
+            // 已解决
+            else {
+                int day = (int) ((solveCommit.getCommitTime().getTime() - appearCommit.getCommitTime().getTime()) / (24 * 3600 * 1000)) + 1;
+                if (day >= duration) {
+                    System.out.printf("抽象缺陷id：%d，缺陷类型：%s，引入版本：%s，解决版本：%s，存续时间：约%d天\n",
+                            issueCase.getIssueCaseId(), issueCase.getIssueCaseType(), appearCommit.getCommitHash(), solveCommit.getCommitHash(), day);
+                }
+            }
         });
     }
 
@@ -132,6 +149,7 @@ public class SonarServiceImpl implements SonarService {
                     int branchId = branchService.insert(branch);
                     // 切换到该分支
                     git.checkout().setCreateBranch(false).setName(branchName).call();
+
                     // 从日志中获得commit信息
                     List<RevCommit> commits = new ArrayList<>();
                     for (RevCommit commit : git.log().call()) {
@@ -143,6 +161,7 @@ public class SonarServiceImpl implements SonarService {
                     int firstCommitId = importCommitAndScanner(commits.get(commits.size()-1), branchId, repositoryId, pathName);
 
                     List<RawIssue> preRawIssues = IssueUtil.getSonarResult(repositoryId, branchId, firstCommitId);
+                    System.out.println("--" + firstCommitId + "--" + preRawIssues.size());
                     List<IssueInstance> preIssueInstances = new ArrayList<>();
 
                     // 通过得到的 raw issue，封装case和instance
@@ -162,18 +181,19 @@ public class SonarServiceImpl implements SonarService {
                         // new一个新的commit并将其入库
                         int commitId = importCommitAndScanner(commit, branchId, repositoryId, pathName);
 
-                        GitUtil.gitCheckout(pathName, commit.getName());
+                        //GitUtil.gitCheckout(pathName, commit.getName());
 
                         // 获取该commit下的raw issue
                         List<RawIssue> curRawIssues = IssueUtil.getSonarResult(repositoryId, branchId, commitId);
+                        System.out.println("--" + commitId + "--" + curRawIssues.size());
                         List<IssueInstance> curIssueInstances = new ArrayList<>();
 
                         // 进行与pre的匹配，若匹配上则不新建case
                         AnalyzerUtil.addExtraAttributeInRawIssues(preRawIssues, pathName);
                         AnalyzerUtil.addExtraAttributeInRawIssues(curRawIssues, pathName);
 
-//                        preRawIssues.forEach(iss-> System.out.println(iss.getLocations()));
-//                        curRawIssues.forEach(iss-> System.out.println(iss.getLocations()));
+//                        preRawIssues.forEach(iss-> iss.getLocations().forEach(lo->System.out.println(lo.getCode())));
+//                        curRawIssues.forEach(iss-> iss.getLocations().forEach(lo->System.out.println(lo.getCode())));
                         RawIssueMatcher.match(preRawIssues, curRawIssues, addAllMethodsAndFields(pathName));
 
                         // 遍历并入库所有的instance，部分case
@@ -254,8 +274,6 @@ public class SonarServiceImpl implements SonarService {
         Git git = Git.open(new File(pathName));
         // 遍历分支，逐分支逐commit入库issue
         for (int branchId:branchIdList) {
-            if (branchId == 1) git.checkout().setName("main").call();
-            else git.checkout().setName("test").call();
             // 获取该分支下的所有commit id（这里是由我们维护的id）
             int[] commitIdList = commitService.getIdByBranchId(branchId);
             // 先读出该分支下第一个commit的issue，入库instance和case
@@ -283,7 +301,6 @@ public class SonarServiceImpl implements SonarService {
                 int commitId = commitIdList[i];
                 try {
                     git.checkout().setName(commitService.getHashById(commitId)).call();
-                    System.out.println(commitId + "--" + commitService.getHashById(commitId));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -295,8 +312,6 @@ public class SonarServiceImpl implements SonarService {
                 // 进行与pre的匹配，若匹配上则不新建case
                 AnalyzerUtil.addExtraAttributeInRawIssues(preRawIssues, pathName);
                 AnalyzerUtil.addExtraAttributeInRawIssues(curRawIssues, pathName);
-                System.out.println(preRawIssues);
-                System.out.println(curRawIssues);
 
                 RawIssueMatcher.match(preRawIssues, curRawIssues, addAllMethodsAndFields(pathName));
 
@@ -488,7 +503,7 @@ public class SonarServiceImpl implements SonarService {
         // 2、显示缺陷的详细信息
         System.out.printf("该版本中共有静态缺陷%d个\n", instances.size());
         instances.forEach(issueInstance -> {
-            int day = (int)(durationTimeMap.get(issueInstance) / (24 * 3600 * 1000));
+            int day = (int)(durationTimeMap.get(issueInstance) / (24 * 3600 * 1000)) + 1;
             System.out.printf("缺陷实例id: %d，缺陷类型：%s，引入时间：%s，解决时间：%s，存续时间：约%d天，缺陷所在文件：%s，缺陷位置：%s\n",
                     issueInstance.getIssueInstanceId(), typeMap.get(issueInstance), appearTimeMap.get(issueInstance), solveTimeMap.get(issueInstance), day, issueInstance.getFileName(), locationMap.get(issueInstance));
         });
@@ -511,7 +526,7 @@ public class SonarServiceImpl implements SonarService {
         sortInstances.forEach(issueInstanceLongEntry -> {
             IssueInstance key = issueInstanceLongEntry.getKey();
             Long value = issueInstanceLongEntry.getValue();
-            int day = (int)(value / (24 * 3600 * 1000));
+            int day = (int)(value / (24 * 3600 * 1000)) + 1;
             System.out.printf("缺陷实例id：%d，存续时间：约%d天\n", key.getIssueInstanceId(), day);
         });
     }

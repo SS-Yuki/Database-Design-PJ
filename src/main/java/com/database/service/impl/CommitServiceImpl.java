@@ -34,7 +34,7 @@ public class CommitServiceImpl implements CommitService {
     }
 
     @Override
-    public int getLatestByBranchId(int branch_id) {
-        return commitDao.queryLatestIdByBranchId(branch_id);
+    public Commit getLatestByBranchId(int branch_id) {
+        return commitDao.queryLatestCommitByBranchId(branch_id);
     }
 }
