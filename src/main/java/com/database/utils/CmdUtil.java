@@ -13,11 +13,6 @@ public class CmdUtil {
         Process process = null;
         try {
             process = Runtime.getRuntime().exec(command);
-            try {
-                process.waitFor(10, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
             InputStream is = process.getInputStream();
             input = new Scanner(is);
             while (input.hasNextLine()) {

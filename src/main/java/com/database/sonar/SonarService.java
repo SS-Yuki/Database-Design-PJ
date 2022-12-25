@@ -39,7 +39,7 @@ public interface SonarService {
     /**
      * 现存的静态缺陷中，已经存续超过指定时间的缺陷情况
      */
-    void showCaseInfoByDuration();
+    void showCaseInfoByDuration(int repositoryId, String branchName, int duration);
 
     // TODO: 静态缺陷的前后追踪关系
 

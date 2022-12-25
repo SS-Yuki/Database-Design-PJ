@@ -26,7 +26,7 @@ public interface IssueCaseDao {
 
     List<IssueCase> queryBySolveCommitId(int commit);
 
-    List<IssueCase> queryAll();
+    List<IssueCase> queryByBranchId(int branchId);
 
     Commit queryAppearCommitById(int caseId);
 

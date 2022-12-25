@@ -27,7 +27,7 @@ public interface IssueCaseService {
 
     List<IssueCase> getCaseBySolveTime(Date begin, Date end);
 
-    Map<IssueCase, Long> getCaseByDurationTime(Long duration);
+    List<IssueCase> getCaseByBranchId(int branchId);
 
     Commit getAppearCommitById(int caseId);
 

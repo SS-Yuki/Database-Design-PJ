@@ -25,5 +25,5 @@ public interface CommitService {
      */
     String getHashById(int commit_id);
 
-    int getLatestByBranchId(int branch_id);
+    Commit getLatestByBranchId(int branch_id);
 }
