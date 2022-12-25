@@ -56,6 +56,11 @@ public class SonarCommand {
                 params.add(Integer.valueOf(strs[3]));
                 return new SonarCommand(SonarCommandType.DURATION, params);
             }
+            case "trace": {
+                // 需要case id
+                params.add(Integer.valueOf(strs[1]));
+                return new SonarCommand(SonarCommandType.TRACE, params);
+            }
             case "import": {
                 // 从strs中得到base dir和project name
                 params.add(strs[1]);

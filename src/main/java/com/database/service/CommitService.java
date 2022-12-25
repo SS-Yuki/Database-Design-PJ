@@ -2,6 +2,8 @@ package com.database.service;
 
 import com.database.object.Commit;
 
+import java.util.List;
+
 public interface CommitService {
 
     /**
@@ -26,4 +28,6 @@ public interface CommitService {
     String getHashById(int commit_id);
 
     Commit getLatestByBranchId(int branch_id);
+
+    List<Commit> getAllChildren(int branch_id, int commit_id);
 }

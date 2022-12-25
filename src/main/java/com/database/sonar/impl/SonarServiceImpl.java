@@ -33,7 +33,6 @@ public class SonarServiceImpl implements SonarService {
     private IssueInstanceService instanceService = new IssueInstanceServiceImpl();
     private IssueLocationService locationService = new IssueLocationServiceImpl();
 
-
     @Override
     public void showInstInfoByCommit(int commit) {
         List<IssueInstance> instances = instanceService.getInstByCommit(commit);
@@ -120,6 +119,30 @@ public class SonarServiceImpl implements SonarService {
                 }
             }
         });
+    }
+
+    @Override
+    public void showTraceInfo(int caseId) {
+        // 1、查到该case
+        IssueCase issueCase = caseService.getCaseById(caseId);
+        if (issueCase == null) {
+            System.out.println("该缺陷不存在！");
+            return;
+        }
+        // 2、确定appearCommit，solveCommit及所在分支名
+        Commit appearCommit = caseService.getAppearCommitById(caseId);
+        Commit solveCommit = caseService.getSolveCommitById(caseId);
+        String branchName = branchService.getNameById(appearCommit.getBranchId());
+        String state = (solveCommit != null) ? "已解决" : "未解决";
+        System.out.printf("该缺陷出现在分支：%s，缺陷状态：%s，版本路径追踪如下：\n", branchName, state);
+        // 3、查找appearCommit所在分支的所有不小于appearCommit的commit
+        List<Commit> children = commitService.getAllChildren(appearCommit.getBranchId(), appearCommit.getCommitId());
+        for (Commit commit : children) {
+            if ((solveCommit == null) || (commit.getCommitId() <= solveCommit.getCommitId()))
+                System.out.print(commit.getCommitHash() + ", ");
+            else break;
+        }
+        System.out.println("");
     }
 
     @Override
@@ -254,7 +277,6 @@ public class SonarServiceImpl implements SonarService {
 //        }
         return true;
     }
-
 
     private int importCommitAndScanner(RevCommit commit, int branchId, int repositoryId, String pathName) throws Exception {
         Commit commitInsert = new Commit(0, commit.getName(), commit.getAuthorIdent().getWhen(), commit.getAuthorIdent().getName(), branchId);
@@ -521,7 +543,7 @@ public class SonarServiceImpl implements SonarService {
             System.out.printf("]\n");
         });
 
-        // 4、按照存续时长排序
+        // 4、按照存续时长排序，并按类型统计存续时间的数据
         List<Map.Entry<IssueInstance, Long>> sortInstances = sortByTime(durationTimeMap);
         System.out.println("按缺陷存在时间排序（只显示缺陷实例id）：");
         sortInstances.forEach(issueInstanceLongEntry -> {
@@ -530,6 +552,49 @@ public class SonarServiceImpl implements SonarService {
             int day = (int)(value / (24 * 3600 * 1000)) + 1;
             System.out.printf("缺陷实例id：%d，存续时间：约%d天\n", key.getIssueInstanceId(), day);
         });
+
+        // 5、按类型统计存续时间数据
+        Map<IssueCaseType, List<Long>> existTimeMap = new HashMap<>();
+        existTimeMap.put(IssueCaseType.VULNERABILITY, new ArrayList<>());
+        existTimeMap.put(IssueCaseType.CODE_SMELL, new ArrayList<>());
+        existTimeMap.put(IssueCaseType.BUG, new ArrayList<>());
+        System.out.println("按照类型统计缺陷的存续时间数字特征：");
+        classifyInstances.forEach((issueCaseType, instances1) -> {
+            List<Long> timeList = existTimeMap.get(issueCaseType);
+            // 遍历该类型的instance，插入time
+            instances1.forEach(issueInstance -> {
+                timeList.add(durationTimeMap.get(issueInstance));
+            });
+            if (instances1.size() != 0) {
+                // 求平均值和中位数
+                int avg = (int) (getAverageTime(timeList) / (24 * 3600 * 1000)) + 1;
+                long median = (int) getMedianTime(timeList) / (24 * 3600 * 1000) + 1;
+                System.out.printf("缺陷类型：%s，平均存续时间：约%d天，中位存续时间：约%d天\n", issueCaseType, avg, median);
+            }
+        });
     }
+
+    public long getAverageTime(List<Long> times) {
+        if (times.size() == 0) return 0;
+        long sum = 0;
+        for (Long time: times) {
+            sum += time;
+        }
+        return sum / times.size();
+    }
+
+    public long getMedianTime(List<Long> times) {
+        if (times.size() == 0) return 0;
+        Collections.sort(times, (a, b) -> {
+            return (int) (a - b);
+        });
+        int size = times.size();
+        // 为偶数
+        if (size % 2 == 0) {
+            return (times.get(size / 2) + times.get(size / 2 - 1)) / 2;
+        }
+        return times.get(times.size() / 2);
+    }
+
 }
 

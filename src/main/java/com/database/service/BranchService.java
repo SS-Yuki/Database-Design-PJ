@@ -16,4 +16,6 @@ public interface BranchService {
     int[] getIdByRepoId(int repository_id);
 
     int getIdByNameAndRepoId(int repository_id, String name);
+
+    String getNameById(int branch_id);
 }

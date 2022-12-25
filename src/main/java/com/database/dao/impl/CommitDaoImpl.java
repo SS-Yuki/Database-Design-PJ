@@ -37,4 +37,10 @@ public class CommitDaoImpl implements CommitDao {
         return JDBCUtil.queryOne(Commit.class, sql, branch_id);
     }
 
+    @Override
+    public List<Commit> queryAllChildrenByBranchIdAndCommitId(int branch_id, int commit_id) {
+        String sql = "select commitId, commitHash, commitTime, commiter, branchId from git_commit where branchId = ? and commitId >= ?";
+        return JDBCUtil.query(Commit.class, sql, branch_id, commit_id);
+    }
+
 }
