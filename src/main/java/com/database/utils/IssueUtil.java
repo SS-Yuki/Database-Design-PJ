@@ -51,12 +51,12 @@ public class IssueUtil {
         //获取issue数量
         int pageSize = 100;
         int issueTotal = sonarIssueResult.getIntValue("total");
-        System.out.println("total:" + issueTotal);
+//        System.out.println("total:" + issueTotal);
         int pages = issueTotal % pageSize > 0 ? issueTotal / pageSize + 1 : issueTotal / pageSize;
         for (int i = 1; i <= pages; i++) {
             JSONObject sonarResult = getSonarIssueResults(componentKeys, i);
             JSONArray sonarRawIssues = sonarResult.getJSONArray("issues");
-            System.out.println("page" + i + ":" + sonarRawIssues.size());
+//            System.out.println("page" + i + ":" + sonarRawIssues.size());
             for (int j = 0; j < sonarRawIssues.size(); j++) {
                 JSONObject sonarIssue = sonarRawIssues.getJSONObject(j);
 

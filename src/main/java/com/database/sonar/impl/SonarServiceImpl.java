@@ -146,6 +146,20 @@ public class SonarServiceImpl implements SonarService {
     }
 
     @Override
+    public void showInstInfoByCommitForIndexTest(int commit) {
+        long startTime1 = System.currentTimeMillis();
+        List<IssueInstance> instances1 = instanceService.getInstByCommitWithIndex(commit);
+        long endTime1 = System.currentTimeMillis();
+        System.out.println("使用Index运行时间：" + (endTime1 - startTime1) + "ms" +  ",iss数量:" + instances1.size());
+
+        long startTime2 = System.currentTimeMillis();
+        List<IssueInstance> instances2 = instanceService.getInstByCommitWithoutIndex(commit);
+        long endTime2 = System.currentTimeMillis();
+        System.out.println("不使用Index运行时间：" + (endTime2 - startTime2) + "ms" + ",iss数量:" + instances2.size());
+        
+    }
+
+    @Override
     public boolean importRepository(String baseDir, String pjName) {
         String pathName = baseDir + File.separator + pjName;                // 获取仓库路径
         // 1、确定本地项目（即确定repo）

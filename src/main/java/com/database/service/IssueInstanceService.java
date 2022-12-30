@@ -14,6 +14,10 @@ public interface IssueInstanceService {
 
     List<IssueInstance> getInstByCommit(int commit);
 
+    List<IssueInstance> getInstByCommitWithIndex(int commit);
+
+    List<IssueInstance> getInstByCommitWithoutIndex(int commit);
+
     Date getAppearTimeById(int inst_id);
 
     Date getSolveTimeById(int inst_id);

@@ -71,6 +71,10 @@ public class SonarCommand {
                 // 不需要params
                 return new SonarCommand(SonarCommandType.EXIT, params);
             }
+            case "test-index": {
+                params.add(Integer.valueOf(strs[1]));
+                return new SonarCommand(SonarCommandType.TEST_INDEX, params);
+            }
             default: {
                 throw new Exception("指令非法");
             }

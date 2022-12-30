@@ -58,4 +58,11 @@ public interface SonarService {
      */
     boolean importRepository(String baseDir, String pjName);
 
+
+    /**
+     * 按照commit版本，查询inst，测试Index效果
+     * @param commit_id
+     */
+    void showInstInfoByCommitForIndexTest(int commit_id);
+
 }

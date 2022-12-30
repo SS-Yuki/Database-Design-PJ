@@ -14,6 +14,10 @@ public interface IssueInstanceDao {
 
     List<IssueInstance> queryByCommit(int commit);
 
+    List<IssueInstance> queryByCommitWithIndex(int commit);
+
+    List<IssueInstance> queryByCommitWithoutIndex(int commit);
+
     Date queryAppearTimeById(int id);
 
     Date querySolveTimeById(int id);

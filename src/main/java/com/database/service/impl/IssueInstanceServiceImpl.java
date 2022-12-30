@@ -29,6 +29,16 @@ public class IssueInstanceServiceImpl implements IssueInstanceService {
     }
 
     @Override
+    public List<IssueInstance> getInstByCommitWithIndex(int commit) {
+        return issueInstanceDao.queryByCommitWithIndex(commit);
+    }
+
+    @Override
+    public List<IssueInstance> getInstByCommitWithoutIndex(int commit) {
+        return issueInstanceDao.queryByCommitWithoutIndex(commit);
+    }
+
+    @Override
     public Date getAppearTimeById(int inst_id) {
         return issueInstanceDao.queryAppearTimeById(inst_id);
     }

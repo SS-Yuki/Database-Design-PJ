@@ -29,6 +29,18 @@ public class IssueInstanceDaoImpl implements IssueInstanceDao {
     }
 
     @Override
+    public List<IssueInstance> queryByCommitWithIndex(int commit) {
+        String sql = "select SQL_NO_CACHE issueInstanceId, issueCaseId, commitId, issueInstanceStatus, fileName from issue_instance where commitId = ?";
+        return JDBCUtil.queryForIssueInstance(sql, commit);
+    }
+
+    @Override
+    public List<IssueInstance> queryByCommitWithoutIndex(int commit) {
+        String sql = "select SQL_NO_CACHE issueInstanceId, issueCaseId, commitId, issueInstanceStatus, fileName from issue_instance ignore index(indexForCommitId) where commitId = ?";
+        return JDBCUtil.queryForIssueInstance(sql, commit);
+    }
+
+    @Override
     public Date queryAppearTimeById(int id) {
         String sql = "select commitTime from git_commit\n" +
                 "join issue_case i on git_commit.commitId = i.appearCommitId\n" +
