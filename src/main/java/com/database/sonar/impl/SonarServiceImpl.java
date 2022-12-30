@@ -12,15 +12,14 @@ import com.database.object.*;
 import com.database.service.*;
 import com.database.service.impl.*;
 import com.database.sonar.SonarService;
-import com.database.utils.EnumUtil;
-import com.database.utils.GitUtil;
-import com.database.utils.IssueUtil;
+import com.database.utils.*;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,7 +34,7 @@ public class SonarServiceImpl implements SonarService {
 
     @Override
     public void showInstInfoByCommit(int commit) {
-        List<IssueInstance> instances = instanceService.getInstByCommit(commit);
+        List<IssueInstance> instances = instanceService.getInstByCommit(null,commit);
         showInstInfo(instances);
     }
 
@@ -43,14 +42,14 @@ public class SonarServiceImpl implements SonarService {
     public void showLatestInstInfo(int repositoryId, String branchName) {
         // 显示指定分支最新版本的缺陷信息
         // 1、查找分支id
-        int branchId = branchService.getIdByNameAndRepoId(repositoryId, branchName);
+        int branchId = branchService.getIdByNameAndRepoId(null,repositoryId, branchName);
         // 若返回id为0代表该分支不存在，return
         if (branchId == 0) {
             System.out.println("分支不存在！");
             return;
         }
         // 2、获取该分支的最新版本
-        Commit commit = commitService.getLatestByBranchId(branchId);
+        Commit commit = commitService.getLatestByBranchId(null,branchId);
         System.out.printf("分支%s下最新版本为：%s\n", branchName, commit.getCommitHash());
         // 3、获取特定版本下的信息
         showInstInfoByCommit(commit.getCommitId());
@@ -59,41 +58,41 @@ public class SonarServiceImpl implements SonarService {
     @Override
     public void showCaseInfoByCommit(int commit) {
         // 指定版本引入的
-        List<IssueCase> appear = caseService.getCaseByAppearCommitId(commit);
+        List<IssueCase> appear = caseService.getCaseByAppearCommitId(null,commit);
         // 指定版本解决的
-        List<IssueCase> solve = caseService.getCaseBySolveCommitId(commit);
+        List<IssueCase> solve = caseService.getCaseBySolveCommitId(null,commit);
         showAppearAndSolveInfo(appear, solve);
     }
 
     @Override
     public void showCaseInfoByTime(Date begin, Date end) {
         // 指定时间段内引入的
-        List<IssueCase> appear = caseService.getCaseByAppearTime(begin, end);
+        List<IssueCase> appear = caseService.getCaseByAppearTime(null,begin, end);
         // 指定时间段内解决的
-        List<IssueCase> solve = caseService.getCaseBySolveTime(begin, end);
+        List<IssueCase> solve = caseService.getCaseBySolveTime(null,begin, end);
         showAppearAndSolveInfo(appear, solve);
     }
 
     @Override
     public void showCaseInfoByCommiter(String commiter) {
         // 查找该commiter引入的
-        List<IssueCase> appear = caseService.getCaseByAppearCommiter(commiter);
+        List<IssueCase> appear = caseService.getCaseByAppearCommiter(null,commiter);
         // 查找该commiter解决的
-        List<IssueCase> solve = caseService.getCaseBySolveCommiter(commiter);
+        List<IssueCase> solve = caseService.getCaseBySolveCommiter(null,commiter);
         showAppearAndSolveInfo(appear, solve);
     }
 
     @Override
     public void showCaseInfoByDuration(int repositoryId, String branchName, int duration) {
         // 1、查找分支id
-        int branchId = branchService.getIdByNameAndRepoId(repositoryId, branchName);
+        int branchId = branchService.getIdByNameAndRepoId(null,repositoryId, branchName);
         // 若返回id为0代表该分支不存在，return
         if (branchId == 0) {
             System.out.println("分支不存在！");
             return;
         }
         // 2、获取该分支下所有的case
-        List<IssueCase> caseList = caseService.getCaseByBranchId(branchId);
+        List<IssueCase> caseList = caseService.getCaseByBranchId(null,branchId);
         // 2、获取存续时长超过一定时间的issue
         Map<IssueCase, Commit> appearHashMap = new HashMap<>();
         Map<IssueCase, Commit> solveHashMap = new HashMap<>();
@@ -124,19 +123,19 @@ public class SonarServiceImpl implements SonarService {
     @Override
     public void showTraceInfo(int caseId) {
         // 1、查到该case
-        IssueCase issueCase = caseService.getCaseById(caseId);
+        IssueCase issueCase = caseService.getCaseById(null,caseId);
         if (issueCase == null) {
             System.out.println("该缺陷不存在！");
             return;
         }
         // 2、确定appearCommit，solveCommit及所在分支名
-        Commit appearCommit = caseService.getAppearCommitById(caseId);
-        Commit solveCommit = caseService.getSolveCommitById(caseId);
-        String branchName = branchService.getNameById(appearCommit.getBranchId());
+        Commit appearCommit = caseService.getAppearCommitById(null,caseId);
+        Commit solveCommit = caseService.getSolveCommitById(null,caseId);
+        String branchName = branchService.getNameById(null,appearCommit.getBranchId());
         String state = (solveCommit != null) ? "已解决" : "未解决";
         System.out.printf("该缺陷出现在分支：%s，缺陷状态：%s，版本路径追踪如下：\n", branchName, state);
         // 3、查找appearCommit所在分支的所有不小于appearCommit的commit
-        List<Commit> children = commitService.getAllChildren(appearCommit.getBranchId(), appearCommit.getCommitId());
+        List<Commit> children = commitService.getAllChildren(null,appearCommit.getBranchId(), appearCommit.getCommitId());
         for (Commit commit : children) {
             if ((solveCommit == null) || (commit.getCommitId() <= solveCommit.getCommitId()))
                 System.out.print(commit.getCommitHash() + ", ");
@@ -159,7 +158,7 @@ public class SonarServiceImpl implements SonarService {
         // 2、完成repo，branch，commit的入库
         // 3.扫描commit, 入库issue
         Repository repository = new Repository(0, baseDir, pjName);
-        int repositoryId = repositoryService.insert(repository);
+        int repositoryId = repositoryService.insert(null,repository);
         // 获取所有的分支列表
         try {
             List<Ref> refs = git.branchList().call();
@@ -168,100 +167,110 @@ public class SonarServiceImpl implements SonarService {
                 // 获取该分支的基本信息
                 String refName = ref.getName();
                 if (refName.startsWith("refs/heads/")) {
-                    String branchName = ref.getName().substring(GitUtil.GitBranchType.LOCAL.getPrefix().length());
+                    Connection connForTransaction = ConnectionUtil.getConnection();
+                    try {
+                        String branchName = ref.getName().substring(GitUtil.GitBranchType.LOCAL.getPrefix().length());
 
-                    Branch branch = new Branch(0, branchName, repositoryId);
-                    // 将该分支信息入库
-                    int branchId = branchService.insert(branch);
-                    // 切换到该分支
-                    git.checkout().setCreateBranch(false).setName(branchName).call();
+                        Branch branch = new Branch(0, branchName, repositoryId);
+                        // 将该分支信息入库
 
-                    // 从日志中获得commit信息
-                    List<RevCommit> commits = new ArrayList<>();
-                    for (RevCommit commit : git.log().call()) {
-                        commits.add(commit);
-                    }
-                    System.out.println("分支" + branchName + "存在commit个数为" + commits.size());
-                    // 遍历commit，进行入库与扫描（注！这里只完成扫描，不完成扫描信息的入库）
+                        JDBCUtil.startTransaction(connForTransaction);
+                        int branchId = branchService.insert(connForTransaction,branch);
+                        // 切换到该分支
+                        git.checkout().setCreateBranch(false).setName(branchName).call();
 
-                    int firstCommitId = importCommitAndScanner(commits.get(commits.size()-1), branchId, repositoryId, pathName);
+                        // 从日志中获得commit信息
+                        List<RevCommit> commits = new ArrayList<>();
+                        for (RevCommit commit : git.log().call()) {
+                            commits.add(commit);
+                        }
+                        System.out.println("分支" + branchName + "存在commit个数为" + commits.size());
+                        // 遍历commit，进行入库与扫描（注！这里只完成扫描，不完成扫描信息的入库）
 
-                    Thread.sleep(20000);
-                    List<RawIssue> preRawIssues = IssueUtil.getSonarResult(repositoryId, branchId, firstCommitId);
-                    List<IssueInstance> preIssueInstances = new ArrayList<>();
+                        int firstCommitId = importCommitAndScanner(commits.get(commits.size()-1), branchId, repositoryId, pathName, connForTransaction);
 
-                    // 通过得到的 raw issue，封装case和instance
-                    for (RawIssue preRawIssue : preRawIssues) {
-                        // 封装成case并入库
-                        IssueCase issueCase = new IssueCase(0, IssueCaseStatus.UNSOLVED, EnumUtil.IssueCaseTypeString2Enum(preRawIssue.getType()), firstCommitId, 0);
-                        int caseId = caseService.insert(issueCase);
+                        Thread.sleep(10000);
+                        List<RawIssue> preRawIssues = IssueUtil.getSonarResult(repositoryId, branchId, firstCommitId, connForTransaction);
+                        List<IssueInstance> preIssueInstances = new ArrayList<>();
 
-                        // 封装成instance并入库
-                        IssueInstance preIssueInstance = importInstanceAndLocation(firstCommitId, caseId, IssueInstanceStatus.APPEAR, preRawIssue);
-                        preIssueInstances.add(preIssueInstance);
-                    }
+                        // 通过得到的 raw issue，封装case和instance
+                        for (RawIssue preRawIssue : preRawIssues) {
+                            // 封装成case并入库
+                            IssueCase issueCase = new IssueCase(0, IssueCaseStatus.UNSOLVED, EnumUtil.IssueCaseTypeString2Enum(preRawIssue.getType()), firstCommitId, 0);
+                            int caseId = caseService.insert(connForTransaction,issueCase);
 
-
-                    for (int i = commits.size() - 2; i >= 0; i--) {
-                        RevCommit commit = commits.get(i);
-                        // new一个新的commit并将其入库
-                        int commitId = importCommitAndScanner(commit, branchId, repositoryId, pathName);
-
-                        //GitUtil.gitCheckout(pathName, commit.getName());
-
-                        // 获取该commit下的raw issue
-                        Thread.sleep(20000);
-                        List<RawIssue> curRawIssues = IssueUtil.getSonarResult(repositoryId, branchId, commitId);
-                        List<IssueInstance> curIssueInstances = new ArrayList<>();
-
-                        // 进行与pre的匹配，若匹配上则不新建case
-                        AnalyzerUtil.addExtraAttributeInRawIssues(preRawIssues, pathName);
-                        AnalyzerUtil.addExtraAttributeInRawIssues(curRawIssues, pathName);
-                        RawIssueMatcher.match(preRawIssues, curRawIssues, addAllMethodsAndFields(pathName));
-
-                        // 遍历并入库所有的instance，部分case
-                        for (RawIssue curRawIssue : curRawIssues) {
-                            // 没有匹配到前面的instance
-                            if (curRawIssue.getMappedRawIssue() == null) {
-                                // 封装case并入库
-                                IssueCase issueCase = new IssueCase(0, IssueCaseStatus.UNSOLVED, EnumUtil.IssueCaseTypeString2Enum(curRawIssue.getType()), commitId, 0);
-                                int caseId = caseService.insert(issueCase);
-                                IssueInstance curIssueInstance = importInstanceAndLocation(commitId, caseId, IssueInstanceStatus.APPEAR, curRawIssue);
-                                curIssueInstances.add(curIssueInstance);
-                            }
-                            else {
-                                // 封装instance，并匹配到case
-                                RawIssue mappedRawIssue = curRawIssue.getMappedRawIssue();
-                                IssueInstance mappedIssueInstance = preIssueInstances.get(preRawIssues.indexOf(mappedRawIssue));
-                                IssueInstance curIssueInstance = importInstanceAndLocation(commitId, mappedIssueInstance.getIssueCaseId(), IssueInstanceStatus.EVOLVE, curRawIssue);
-                                curIssueInstances.add(curIssueInstance);
-                            }
+                            // 封装成instance并入库
+                            IssueInstance preIssueInstance = importInstanceAndLocation(firstCommitId, caseId, IssueInstanceStatus.APPEAR, preRawIssue, connForTransaction);
+                            preIssueInstances.add(preIssueInstance);
                         }
 
-                        // 可能存在当前版本不存在，上个版本存在的问题，是在该版本被解决
-                        for (int j = 0; j < preRawIssues.size(); j++) {
-                            if (preRawIssues.get(j).getMappedRawIssue() == null) {
-                                RawIssue preRawIssue = preRawIssues.get(j);
-                                // 该问题已经被解决
-                                IssueInstance preIssueInstance = preIssueInstances.get(j);
-                                int caseId = preIssueInstance.getIssueCaseId();
-                                IssueCase issueCase = caseService.getCaseById(caseId);
-                                issueCase.setSolveCommitId(commitId);
-                                issueCase.setIssueCaseStatus(IssueCaseStatus.SOLVED);
-                                caseService.update(issueCase);
 
-                                IssueInstance curIssueInstance = importInstanceAndLocation(commitId, caseId, IssueInstanceStatus.DISAPPEAR, preRawIssue);
-                                curIssueInstances.add(curIssueInstance);
+                        for (int i = commits.size() - 2; i >= 0; i--) {
+                            RevCommit commit = commits.get(i);
+                            // new一个新的commit并将其入库
+                            int commitId = importCommitAndScanner(commit, branchId, repositoryId, pathName, connForTransaction);
+
+                            //GitUtil.gitCheckout(pathName, commit.getName());
+
+                            // 获取该commit下的raw issue
+                            Thread.sleep(10000);
+                            List<RawIssue> curRawIssues = IssueUtil.getSonarResult(repositoryId, branchId, commitId, connForTransaction);
+                            List<IssueInstance> curIssueInstances = new ArrayList<>();
+
+                            // 进行与pre的匹配，若匹配上则不新建case
+                            AnalyzerUtil.addExtraAttributeInRawIssues(preRawIssues, pathName);
+                            AnalyzerUtil.addExtraAttributeInRawIssues(curRawIssues, pathName);
+                            RawIssueMatcher.match(preRawIssues, curRawIssues, addAllMethodsAndFields(pathName));
+
+                            // 遍历并入库所有的instance，部分case
+                            for (RawIssue curRawIssue : curRawIssues) {
+                                // 没有匹配到前面的instance
+                                if (curRawIssue.getMappedRawIssue() == null) {
+                                    // 封装case并入库
+                                    IssueCase issueCase = new IssueCase(0, IssueCaseStatus.UNSOLVED, EnumUtil.IssueCaseTypeString2Enum(curRawIssue.getType()), commitId, 0);
+                                    int caseId = caseService.insert(connForTransaction,issueCase);
+                                    IssueInstance curIssueInstance = importInstanceAndLocation(commitId, caseId, IssueInstanceStatus.APPEAR, curRawIssue, connForTransaction);
+                                    curIssueInstances.add(curIssueInstance);
+                                }
+                                else {
+                                    // 封装instance，并匹配到case
+                                    RawIssue mappedRawIssue = curRawIssue.getMappedRawIssue();
+                                    IssueInstance mappedIssueInstance = preIssueInstances.get(preRawIssues.indexOf(mappedRawIssue));
+                                    IssueInstance curIssueInstance = importInstanceAndLocation(commitId, mappedIssueInstance.getIssueCaseId(), IssueInstanceStatus.EVOLVE, curRawIssue, connForTransaction);
+                                    curIssueInstances.add(curIssueInstance);
+                                }
                             }
-                        }
 
-                        // issue已经入库完成，更新循环控制变量
-                        for (RawIssue curRawIssue : curRawIssues) {
-                            curRawIssue.resetMappedInfo();
+                            // 可能存在当前版本不存在，上个版本存在的问题，是在该版本被解决
+                            for (int j = 0; j < preRawIssues.size(); j++) {
+                                if (preRawIssues.get(j).getMappedRawIssue() == null) {
+                                    RawIssue preRawIssue = preRawIssues.get(j);
+                                    // 该问题已经被解决
+                                    IssueInstance preIssueInstance = preIssueInstances.get(j);
+                                    int caseId = preIssueInstance.getIssueCaseId();
+                                    IssueCase issueCase = caseService.getCaseById(connForTransaction,caseId);
+                                    issueCase.setSolveCommitId(commitId);
+                                    issueCase.setIssueCaseStatus(IssueCaseStatus.SOLVED);
+                                    caseService.update(connForTransaction,issueCase);
+
+                                    IssueInstance curIssueInstance = importInstanceAndLocation(commitId, caseId, IssueInstanceStatus.DISAPPEAR, preRawIssue, connForTransaction);
+                                    curIssueInstances.add(curIssueInstance);
+                                }
+                            }
+
+                            // issue已经入库完成，更新循环控制变量
+                            for (RawIssue curRawIssue : curRawIssues) {
+                                curRawIssue.resetMappedInfo();
+                            }
+                            preIssueInstances = curIssueInstances;
+                            preRawIssues = curRawIssues;
                         }
-                        preIssueInstances = curIssueInstances;
-                        preRawIssues = curRawIssues;
+                        JDBCUtil.commitTransaction(connForTransaction);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        JDBCUtil.rollBackTransaction(connForTransaction);
                     }
+
                 }
 
             }
@@ -278,9 +287,9 @@ public class SonarServiceImpl implements SonarService {
         return true;
     }
 
-    private int importCommitAndScanner(RevCommit commit, int branchId, int repositoryId, String pathName) throws Exception {
+    private int importCommitAndScanner(RevCommit commit, int branchId, int repositoryId, String pathName, Connection connection) throws Exception {
         Commit commitInsert = new Commit(0, commit.getName(), commit.getAuthorIdent().getWhen(), commit.getAuthorIdent().getName(), branchId);
-        int commitId = commitService.insert(commitInsert);
+        int commitId = commitService.insert(connection,commitInsert);
 
         // 3、对当前入库的commit代码进行扫描
         String commitHash = commitInsert.getCommitHash();
@@ -290,32 +299,32 @@ public class SonarServiceImpl implements SonarService {
         return commitId;
     }
 
-    public void importIssue(int repositoryId, String pathName) throws Exception {
+    public void importIssue(int repositoryId, String pathName, Connection connection) throws Exception {
         // 前面已经将仓库的元信息入库，该函数将issue case、instance与location入库
         // 确定仓库分支的数目
-        int[] branchIdList = branchService.getIdByRepoId(repositoryId);
+        int[] branchIdList = branchService.getIdByRepoId(connection,repositoryId);
         Git git = Git.open(new File(pathName));
         // 遍历分支，逐分支逐commit入库issue
         for (int branchId:branchIdList) {
             // 获取该分支下的所有commit id（这里是由我们维护的id）
-            int[] commitIdList = commitService.getIdByBranchId(branchId);
+            int[] commitIdList = commitService.getIdByBranchId(connection,branchId);
             // 先读出该分支下第一个commit的issue，入库instance和case
             try {
-                git.checkout().setName(commitService.getHashById(commitIdList[0])).call();
+                git.checkout().setName(commitService.getHashById(connection,commitIdList[0])).call();
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            List<RawIssue> preRawIssues = IssueUtil.getSonarResult(repositoryId, branchId, commitIdList[0]);
+            List<RawIssue> preRawIssues = IssueUtil.getSonarResult(repositoryId, branchId, commitIdList[0], connection);
             List<IssueInstance> preIssueInstances = new ArrayList<>();
 
             // 通过得到的 raw issue，封装case和instance
             for (RawIssue preRawIssue : preRawIssues) {
                 // 封装成case并入库
                 IssueCase issueCase = new IssueCase(0, IssueCaseStatus.UNSOLVED, EnumUtil.IssueCaseTypeString2Enum(preRawIssue.getType()), commitIdList[0], 0);
-                int caseId = caseService.insert(issueCase);
+                int caseId = caseService.insert(connection,issueCase);
 
                 // 封装成instance并入库
-                IssueInstance preIssueInstance = importInstanceAndLocation(commitIdList[0], caseId, IssueInstanceStatus.APPEAR, preRawIssue);
+                IssueInstance preIssueInstance = importInstanceAndLocation(commitIdList[0], caseId, IssueInstanceStatus.APPEAR, preRawIssue, connection);
                 preIssueInstances.add(preIssueInstance);
             }
 
@@ -323,13 +332,13 @@ public class SonarServiceImpl implements SonarService {
             for (int i = 1; i < commitIdList.length; i++) {
                 int commitId = commitIdList[i];
                 try {
-                    git.checkout().setName(commitService.getHashById(commitId)).call();
+                    git.checkout().setName(commitService.getHashById(connection,commitId)).call();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
 
                 // 获取该commit下的raw issue
-                List<RawIssue> curRawIssues = IssueUtil.getSonarResult(repositoryId, branchId, commitId);
+                List<RawIssue> curRawIssues = IssueUtil.getSonarResult(repositoryId, branchId, commitId, connection);
                 List<IssueInstance> curIssueInstances = new ArrayList<>();
 
                 // 进行与pre的匹配，若匹配上则不新建case
@@ -344,15 +353,15 @@ public class SonarServiceImpl implements SonarService {
                     if (curRawIssue.getMappedRawIssue() == null) {
                         // 封装case并入库
                         IssueCase issueCase = new IssueCase(0, IssueCaseStatus.UNSOLVED, EnumUtil.IssueCaseTypeString2Enum(curRawIssue.getType()), commitId, 0);
-                        int caseId = caseService.insert(issueCase);
-                        IssueInstance curIssueInstance = importInstanceAndLocation(commitId, caseId, IssueInstanceStatus.APPEAR, curRawIssue);
+                        int caseId = caseService.insert(connection,issueCase);
+                        IssueInstance curIssueInstance = importInstanceAndLocation(commitId, caseId, IssueInstanceStatus.APPEAR, curRawIssue, connection);
                         curIssueInstances.add(curIssueInstance);
                     }
                     else {
                         // 封装instance，并匹配到case
                         RawIssue mappedRawIssue = curRawIssue.getMappedRawIssue();
                         IssueInstance mappedIssueInstance = preIssueInstances.get(preRawIssues.indexOf(mappedRawIssue));
-                        IssueInstance curIssueInstance = importInstanceAndLocation(commitId, mappedIssueInstance.getIssueCaseId(), IssueInstanceStatus.EVOLVE, curRawIssue);
+                        IssueInstance curIssueInstance = importInstanceAndLocation(commitId, mappedIssueInstance.getIssueCaseId(), IssueInstanceStatus.EVOLVE, curRawIssue, connection);
                         curIssueInstances.add(curIssueInstance);
                     }
                 }
@@ -364,12 +373,12 @@ public class SonarServiceImpl implements SonarService {
                         // 该问题已经被解决
                         IssueInstance preIssueInstance = preIssueInstances.get(j);
                         int caseId = preIssueInstance.getIssueCaseId();
-                        IssueCase issueCase = caseService.getCaseById(caseId);
+                        IssueCase issueCase = caseService.getCaseById(connection,caseId);
                         issueCase.setSolveCommitId(commitId);
                         issueCase.setIssueCaseStatus(IssueCaseStatus.SOLVED);
-                        caseService.update(issueCase);
+                        caseService.update(connection,issueCase);
 
-                        IssueInstance curIssueInstance = importInstanceAndLocation(commitId, caseId, IssueInstanceStatus.DISAPPEAR, preRawIssue);
+                        IssueInstance curIssueInstance = importInstanceAndLocation(commitId, caseId, IssueInstanceStatus.DISAPPEAR, preRawIssue, connection);
                         curIssueInstances.add(curIssueInstance);
                     }
                 }
@@ -385,17 +394,17 @@ public class SonarServiceImpl implements SonarService {
     }
 
     //插入instance和location
-    private IssueInstance importInstanceAndLocation(int commitId, int caseId, IssueInstanceStatus status, RawIssue issue) {
+    private IssueInstance importInstanceAndLocation(int commitId, int caseId, IssueInstanceStatus status, RawIssue issue, Connection connection) {
         // 封装instance并入库
         IssueInstance issueInstance = new IssueInstance(0, commitId, caseId, status, issue.getFileName());
-        int instanceId = instanceService.insert(issueInstance);
+        int instanceId = instanceService.insert(connection,issueInstance);
         issueInstance.setIssueInstanceId(instanceId);
 
         // 封装location并入库
         for (int i = 0; i < issue.getLocations().size(); i++) {
             Location rawLocation = issue.getLocations().get(i);
             IssueLocation issueLocation = new IssueLocation(instanceId, i, rawLocation.getStartLine(), rawLocation.getEndLine());
-            locationService.insert(issueLocation);
+            locationService.insert(connection,issueLocation);
         }
 
         return issueInstance;
@@ -428,7 +437,7 @@ public class SonarServiceImpl implements SonarService {
         map.put(IssueCaseType.CODE_SMELL, new ArrayList<>());
         map.put(IssueCaseType.VULNERABILITY, new ArrayList<>());
         instances.forEach(issueInstance -> {
-            IssueCaseType type = instanceService.getTypeById(issueInstance.getIssueInstanceId());
+            IssueCaseType type = instanceService.getTypeById(null,issueInstance.getIssueInstanceId());
             map.get(type).add(issueInstance);
         });
         return map;
@@ -448,8 +457,8 @@ public class SonarServiceImpl implements SonarService {
 
     private void getAppearAndSolveHashByCase(List<IssueCase> cases, Map<IssueCase, Commit> appearMap, Map<IssueCase, Commit> solveMap) {
         cases.forEach(issueCase -> {
-            Commit appearHash = caseService.getAppearCommitById(issueCase.getIssueCaseId());
-            Commit solveHash = caseService.getSolveCommitById(issueCase.getIssueCaseId());
+            Commit appearHash = caseService.getAppearCommitById(null,issueCase.getIssueCaseId());
+            Commit solveHash = caseService.getSolveCommitById(null,issueCase.getIssueCaseId());
             appearMap.put(issueCase, appearHash);
             solveMap.put(issueCase, solveHash);
         });
@@ -507,19 +516,19 @@ public class SonarServiceImpl implements SonarService {
         instances.forEach(issueInstance -> {
             int caseId = issueInstance.getIssueCaseId();
             // 查找对应的location
-            List<IssueLocation> locations = locationService.getLocationByInstId(issueInstance.getIssueInstanceId());
+            List<IssueLocation> locations = locationService.getLocationByInstId(null,issueInstance.getIssueInstanceId());
             locationMap.put(issueInstance, locations);
             // 查找对应的appear time
-            Date appearTime = instanceService.getAppearTimeById(issueInstance.getIssueInstanceId());
+            Date appearTime = instanceService.getAppearTimeById(null,issueInstance.getIssueInstanceId());
             appearTimeMap.put(issueInstance, appearTime);
             // 查找对应的solve time
-            Date solveTime = instanceService.getSolveTimeById(issueInstance.getIssueInstanceId());
+            Date solveTime = instanceService.getSolveTimeById(null,issueInstance.getIssueInstanceId());
             solveTimeMap.put(issueInstance, solveTime);
             // 获取对应的duration time
             long time = (solveTime == null) ? (new Date().getTime() - appearTime.getTime()) : (solveTime.getTime() - appearTime.getTime());
             durationTimeMap.put(issueInstance, time);
             // 获取对应的type
-            IssueCaseType type = instanceService.getTypeById(issueInstance.getIssueInstanceId());
+            IssueCaseType type = instanceService.getTypeById(null,issueInstance.getIssueInstanceId());
             typeMap.put(issueInstance, type);
         });
 

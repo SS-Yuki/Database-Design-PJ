@@ -11,6 +11,7 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -44,7 +45,7 @@ public class IssueUtil {
     }
 
     //根据Id 从云端获取所有的Json, 并解析成RawIssue
-    public static List<RawIssue> getSonarResult(int repositoryId, int branchId, int commitId) throws Exception {
+    public static List<RawIssue> getSonarResult(int repositoryId, int branchId, int commitId, Connection connection) throws Exception {
         List<RawIssue> resultRawIssues = new ArrayList<RawIssue>();
         String componentKeys = "repositoryId" + repositoryId + "_" + "branchId" + branchId + "_" + "commitId" + commitId;
         JSONObject sonarIssueResult = getSonarIssueResults(componentKeys, 1);
@@ -77,7 +78,7 @@ public class IssueUtil {
                 rawIssue.setFileName(getFileName(sonarIssue));
                 rawIssue.setDetail(sonarIssue.getString("message"));
                 rawIssue.setLocations(locations);
-                rawIssue.setCommitId(commitService.getHashById(commitId));
+                rawIssue.setCommitId(commitService.getHashById(connection,commitId));
 
                 rawIssue.setUuid(String.format("%d_%d_%d_%d", repositoryId, branchId, commitId, pageSize*i+j));
 
