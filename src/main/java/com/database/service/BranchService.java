@@ -2,6 +2,8 @@ package com.database.service;
 
 import com.database.object.Branch;
 
+import java.sql.Connection;
+
 public interface BranchService {
 
     /**
@@ -9,13 +11,11 @@ public interface BranchService {
      * @param branch
      * @return
      */
-    int insert(Branch branch);
+    int insert(Connection connection, Branch branch);
 
-    int getNumByRepoId(int repository_id);
+    int[] getIdByRepoId(Connection connection, int repository_id);
 
-    int[] getIdByRepoId(int repository_id);
+    int getIdByNameAndRepoId(Connection connection, int repository_id, String name);
 
-    int getIdByNameAndRepoId(int repository_id, String name);
-
-    String getNameById(int branch_id);
+    String getNameById(Connection connection, int branch_id);
 }

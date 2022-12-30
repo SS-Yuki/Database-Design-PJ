@@ -2,6 +2,8 @@ package com.database.service;
 
 import com.database.object.Repository;
 
+import java.sql.Connection;
+
 public interface RepositoryService {
 
     /**
@@ -9,6 +11,6 @@ public interface RepositoryService {
      * @param repository
      * @return
      */
-    int insert(Repository repository);
+    int insert(Connection connection, Repository repository);
 
 }

@@ -5,6 +5,7 @@ import com.database.dao.impl.BranchDaoImpl;
 import com.database.object.Branch;
 import com.database.service.BranchService;
 
+import java.sql.Connection;
 import java.util.List;
 
 public class BranchServiceImpl implements BranchService {
@@ -12,19 +13,14 @@ public class BranchServiceImpl implements BranchService {
     private BranchDao branchDao = new BranchDaoImpl();
 
     @Override
-    public int insert(Branch branch) {
+    public int insert(Connection connection, Branch branch) {
         // 插入
-        return branchDao.insert(branch);
+        return branchDao.insert(connection, branch);
     }
 
     @Override
-    public int getNumByRepoId(int repository_id) {
-        return branchDao.queryByRepoId(repository_id).size();
-    }
-
-    @Override
-    public int[] getIdByRepoId(int repository_id) {
-        List<Branch> branches = branchDao.queryByRepoId(repository_id);
+    public int[] getIdByRepoId(Connection connection, int repository_id) {
+        List<Branch> branches = branchDao.queryByRepoId(connection, repository_id);
         int[] branchIds = new int[branches.size()];
         for (int i = 0; i < branches.size(); i++) {
             branchIds[i] = branches.get(i).getBranchId();
@@ -33,15 +29,15 @@ public class BranchServiceImpl implements BranchService {
     }
 
     @Override
-    public int getIdByNameAndRepoId(int repository_id, String name) {
-        Branch branch = branchDao.queryByNameAndRepoId(name, repository_id);
+    public int getIdByNameAndRepoId(Connection connection, int repository_id, String name) {
+        Branch branch = branchDao.queryByNameAndRepoId(connection, name, repository_id);
         if (branch == null) return 0;
         return branch.getBranchId();
     }
 
     @Override
-    public String getNameById(int branch_id) {
-        return branchDao.queryById(branch_id).getBranchName();
+    public String getNameById(Connection connection, int branch_id) {
+        return branchDao.queryById(connection, branch_id).getBranchName();
     }
 
 }

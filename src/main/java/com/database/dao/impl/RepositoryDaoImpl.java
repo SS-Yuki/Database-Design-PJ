@@ -4,23 +4,19 @@ import com.database.dao.RepositoryDao;
 import com.database.object.Repository;
 import com.database.utils.JDBCUtil;
 
+import java.sql.Connection;
+
 public class RepositoryDaoImpl implements RepositoryDao {
     @Override
-    public int insert(Repository repository) {
+    public int insert(Connection connection, Repository repository) {
         String sql = "insert into repository (repositoryName, baseDir) values (?, ?);";
-        return JDBCUtil.update(sql, repository.getRepositoryName(), repository.getBaseDir());
+        return JDBCUtil.update(connection, sql, repository.getRepositoryName(), repository.getBaseDir());
     }
 
     @Override
-    public Repository queryById(int id) {
+    public Repository queryById(Connection connection, int id) {
         String sql = "select repositoryId, repositoryName, baseDir from repository where repositoryId = ?";
-        return JDBCUtil.queryOne(Repository.class, sql, id);
-    }
-
-    @Override
-    public Repository queryByNameAndDir(String name, String dir) {
-        String sql = "select repositoryId, repositoryName, baseDir from repository where repositoryName = ? and baseDir = ?";
-        return JDBCUtil.queryOne(Repository.class, sql, name, dir);
+        return JDBCUtil.queryOne(connection, Repository.class, sql, id);
     }
 
 }

@@ -1,6 +1,5 @@
 package com.database.utils;
 
-import com.database.common.IssueInstanceStatus;
 import com.database.object.IssueCase;
 import com.database.object.IssueInstance;
 
@@ -15,15 +14,14 @@ public class JDBCUtil {
 
     /**
      * 判断表tableName是否存在
+     * @param connection
      * @param tableName
      * @return
      */
-    public static boolean existTable(String tableName) {
+    public static boolean existTable(Connection connection, String tableName) {
         boolean flag = false;
-        Connection connection = null;
         ResultSet rs = null;
         try {
-            connection = ConnectionUtil.getConnection();
             DatabaseMetaData metaData = connection.getMetaData();
             String type [] = {"TABLE"};
             rs = metaData.getTables(null, null, tableName, type);
@@ -31,44 +29,45 @@ public class JDBCUtil {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         } finally {
-            ConnectionUtil.closeResource(connection, null, rs);
+            ConnectionUtil.closeResource(null, null, rs);
         }
         return flag;
     }
 
     /**
      * 根据sql语句创建一个数据表
+     * @param connection
      * @param sql
      */
-    public static void createTable(String sql) {
-        Connection connection = null;
+    public static void createTable(Connection connection, String sql) {
         PreparedStatement statement = null;
         try {
-            // 1、获取连接
-            connection = ConnectionUtil.getConnection();
             // 2、预编译sql
             statement = connection.prepareStatement(sql);
             // 3、没有占位符要填充，直接执行
             statement.execute();
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         } finally {
-            ConnectionUtil.closeResource(connection, statement);
+            ConnectionUtil.closeResource(null, statement);
         }
     }
 
     /**
      * 对数据库的表进行增删改操作
+     * @param connection
      * @param sql
      * @param args
      */
-    public static int update(String sql, Object... args) {
-        Connection connection = null;
+    public static int update(Connection connection, String sql, Object... args) {
         PreparedStatement statement = null;
+        boolean getConnection = false;
         int id = -1;
         try {
-            // 1、获取连接
-            connection = ConnectionUtil.getConnection();
+            if (connection == null) {
+                connection = ConnectionUtil.getConnection();
+                getConnection = true;
+            }
             // 2、预编译sql语句
             statement = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
             // 3、填充sql占位符
@@ -84,9 +83,13 @@ public class JDBCUtil {
                 id = rs.getInt(1);
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         } finally {
-            ConnectionUtil.closeResource(connection, statement);
+            if (getConnection) {
+                ConnectionUtil.closeResource(connection, statement);
+            } else {
+                ConnectionUtil.closeResource(null, statement);
+            }
         }
         return id;
     }
@@ -115,11 +118,9 @@ public class JDBCUtil {
      * @param sql
      * @param data 要插入的数据，类型为List<>，每项代表一条记录的数据
      */
-    public static void insertBatch(String sql, List<Object[]> data) {
-        Connection connection = null;
+    public static void insertBatch(Connection connection, String sql, List<Object[]> data) {
         PreparedStatement statement = null;
         try {
-            connection = ConnectionUtil.getConnection();
             statement = connection.prepareStatement(sql);
 
             int left = data.size() % batchNumber;
@@ -132,30 +133,9 @@ public class JDBCUtil {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         } finally {
-            ConnectionUtil.closeResource(connection, statement);
+            ConnectionUtil.closeResource(null, statement);
         }
     }
-
-//    private static ResultSet querySql(String sql, Object... args) {
-//        Connection connection = null;
-//        PreparedStatement statement = null;
-//        ResultSet rs = null;
-//        try {
-//            connection = ConnectionUtil.getConnection();
-//            statement = connection.prepareStatement(sql);
-//            for (int i = 0; i < args.length; i++) {
-//                statement.setObject(i + 1, args[i]);
-//            }
-//            rs = statement.executeQuery();
-//        }
-//        catch (Exception e) {
-//                System.out.println(e.getMessage());
-//        }
-//        finally {
-//                ConnectionUtil.closeResource(connection, statement, rs);
-//        }
-//        return rs;
-//    }
 
     /**
      * 查询数据库，并将查询结果封装为bean
@@ -165,12 +145,15 @@ public class JDBCUtil {
      * @param <T>
      * @return
      */
-    public static <T> ArrayList<T> query(Class<T> clazz, String sql, Object... args) {
-        Connection connection = null;
+    public static <T> ArrayList<T> query(Connection connection, Class<T> clazz, String sql, Object... args) {
         PreparedStatement statement = null;
         ResultSet rs = null;
+        boolean getConnection = false;
         try {
-            connection = ConnectionUtil.getConnection();
+            if (connection == null) {
+                connection = ConnectionUtil.getConnection();
+                getConnection = true;
+            }
             statement = connection.prepareStatement(sql);
             for (int i = 0; i < args.length; i++) {
                 statement.setObject(i + 1, args[i]);
@@ -197,28 +180,13 @@ public class JDBCUtil {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            ConnectionUtil.closeResource(connection, statement, rs);
+            if (getConnection) {
+                ConnectionUtil.closeResource(connection, statement, rs);
+            } else {
+                ConnectionUtil.closeResource(null, statement, rs);
+            }
         }
         return null;
-
-//        Connection connection = null;
-//        PreparedStatement statement = null;
-//        ResultSet rs = null;
-
-//        try {
-//            connection = ConnectionUtil.getConnection();
-//            statement = connection.prepareStatement(sql);
-//            for (int i = 0; i < args.length; i++) {
-//                statement.setObject(i + 1, args[i]);
-//            }
-//            rs = statement.executeQuery();
-
-//        } catch (Exception e) {
-//            System.out.println(e.getMessage());
-//        } finally {
-//            ConnectionUtil.closeResource(connection, statement, rs);
-//        }
-//        return null;
     }
 
     /**
@@ -229,12 +197,15 @@ public class JDBCUtil {
      * @param <T>
      * @return
      */
-    public static <T> T queryOne(Class<T> clazz, String sql, Object... args) {
-        Connection connection = null;
+    public static <T> T queryOne(Connection connection, Class<T> clazz, String sql, Object... args) {
         PreparedStatement statement = null;
         ResultSet rs = null;
+        boolean getConnection = false;
         try {
-            connection = ConnectionUtil.getConnection();
+            if (connection == null) {
+                connection = ConnectionUtil.getConnection();
+                getConnection = true;
+            }
             statement = connection.prepareStatement(sql);
             for (int i = 0; i < args.length; i++) {
                 statement.setObject(i + 1, args[i]);
@@ -256,17 +227,24 @@ public class JDBCUtil {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            ConnectionUtil.closeResource(connection, statement, rs);
+            if (getConnection) {
+                ConnectionUtil.closeResource(connection, statement, rs);
+            } else {
+                ConnectionUtil.closeResource(null, statement, rs);
+            }
         }
         return null;
     }
 
-    public static IssueCase queryOneForIssueCase(String sql, Object... args) {
-        Connection connection = null;
+    public static IssueCase queryOneForIssueCase(Connection connection, String sql, Object... args) {
         PreparedStatement statement = null;
         ResultSet rs = null;
+        boolean getConnection = false;
         try {
-            connection = ConnectionUtil.getConnection();
+            if (connection == null) {
+                connection = ConnectionUtil.getConnection();
+                getConnection = true;
+            }
             statement = connection.prepareStatement(sql);
             for (int i = 0; i < args.length; i++) {
                 statement.setObject(i + 1, args[i]);
@@ -283,17 +261,24 @@ public class JDBCUtil {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            ConnectionUtil.closeResource(connection, statement, rs);
+            if (getConnection) {
+                ConnectionUtil.closeResource(connection, statement, rs);
+            } else {
+                ConnectionUtil.closeResource(null, statement, rs);
+            }
         }
         return null;
     }
 
-    public static List<IssueCase> queryForIssueCase(String sql, Object... args) {
-        Connection connection = null;
+    public static List<IssueCase> queryForIssueCase(Connection connection, String sql, Object... args) {
         PreparedStatement statement = null;
         ResultSet rs = null;
+        boolean getConnection = false;
         try {
-            connection = ConnectionUtil.getConnection();
+            if (connection == null) {
+                connection = ConnectionUtil.getConnection();
+                getConnection = true;
+            }
             statement = connection.prepareStatement(sql);
             for (int i = 0; i < args.length; i++) {
                 statement.setObject(i + 1, args[i]);
@@ -313,18 +298,25 @@ public class JDBCUtil {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            ConnectionUtil.closeResource(connection, statement, rs);
+            if (getConnection) {
+                ConnectionUtil.closeResource(connection, statement, rs);
+            } else {
+                ConnectionUtil.closeResource(null, statement, rs);
+            }
         }
         return null;
     }
 
 
-    public static IssueInstance queryOneForIssueInstance(String sql, Object... args) {
-        Connection connection = null;
+    public static IssueInstance queryOneForIssueInstance(Connection connection, String sql, Object... args) {
         PreparedStatement statement = null;
         ResultSet rs = null;
+        boolean getConnection = false;
         try {
-            connection = ConnectionUtil.getConnection();
+            if (connection == null) {
+                connection = ConnectionUtil.getConnection();
+                getConnection = true;
+            }
             statement = connection.prepareStatement(sql);
             for (int i = 0; i < args.length; i++) {
                 statement.setObject(i + 1, args[i]);
@@ -341,17 +333,24 @@ public class JDBCUtil {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            ConnectionUtil.closeResource(connection, statement, rs);
+            if (getConnection) {
+                ConnectionUtil.closeResource(connection, statement, rs);
+            } else {
+                ConnectionUtil.closeResource(null, statement, rs);
+            }
         }
         return null;
     }
 
-    public static List<IssueInstance> queryForIssueInstance(String sql, Object... args) {
-        Connection connection = null;
+    public static List<IssueInstance> queryForIssueInstance(Connection connection, String sql, Object... args) {
         PreparedStatement statement = null;
         ResultSet rs = null;
+        boolean getConnection = false;
         try {
-            connection = ConnectionUtil.getConnection();
+            if (connection == null) {
+                connection = ConnectionUtil.getConnection();
+                getConnection = true;
+            }
             statement = connection.prepareStatement(sql);
             for (int i = 0; i < args.length; i++) {
                 statement.setObject(i + 1, args[i]);
@@ -371,7 +370,11 @@ public class JDBCUtil {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            ConnectionUtil.closeResource(connection, statement, rs);
+            if (getConnection) {
+                ConnectionUtil.closeResource(connection, statement, rs);
+            } else {
+                ConnectionUtil.closeResource(null, statement, rs);
+            }
         }
         return null;
     }
@@ -383,12 +386,15 @@ public class JDBCUtil {
      * @param <E>
      * @return
      */
-    public static <E> E getValue(String sql, Object... args) {
-        Connection connection = null;
+    public static <E> E getValue(Connection connection, String sql, Object... args) {
         PreparedStatement ps = null;
         ResultSet rs = null;
+        boolean getConnection = false;
         try {
-            connection = ConnectionUtil.getConnection();
+            if (connection == null) {
+                connection = ConnectionUtil.getConnection();
+                getConnection = true;
+            }
             ps = connection.prepareStatement(sql);
             // 填充占位符
             for(int i = 0; i < args.length; i++) {
@@ -403,7 +409,11 @@ public class JDBCUtil {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            ConnectionUtil.closeResource(null, ps, rs);
+            if (getConnection) {
+                ConnectionUtil.closeResource(connection, ps, rs);
+            } else {
+                ConnectionUtil.closeResource(null, ps, rs);
+            }
         }
         return null;
     }

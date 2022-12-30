@@ -5,6 +5,7 @@ import com.database.dao.impl.IssueLocationDaoImpl;
 import com.database.object.IssueLocation;
 import com.database.service.IssueLocationService;
 
+import java.sql.Connection;
 import java.util.List;
 
 public class IssueLocationServiceImpl implements IssueLocationService {
@@ -12,12 +13,12 @@ public class IssueLocationServiceImpl implements IssueLocationService {
     private IssueLocationDao issueLocationDao = new IssueLocationDaoImpl();
 
     @Override
-    public void insert(IssueLocation issueLocation) {
-        issueLocationDao.insert(issueLocation);
+    public void insert(Connection connection, IssueLocation issueLocation) {
+        issueLocationDao.insert(connection, issueLocation);
     }
 
     @Override
-    public List<IssueLocation> getLocationByInstId(int inst_id) {
-        return issueLocationDao.queryByInstId(inst_id);
+    public List<IssueLocation> getLocationByInstId(Connection connection, int inst_id) {
+        return issueLocationDao.queryByInstId(connection, inst_id);
     }
 }

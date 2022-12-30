@@ -3,20 +3,21 @@ package com.database.dao;
 import com.database.common.IssueCaseType;
 import com.database.object.IssueInstance;
 
+import java.sql.Connection;
 import java.util.Date;
 import java.util.List;
 
 public interface IssueInstanceDao {
 
-    int insert(IssueInstance instance);
+    int insert(Connection connection, IssueInstance instance);
 
-    IssueInstance queryById(int id);
+    IssueInstance queryById(Connection connection, int id);
 
-    List<IssueInstance> queryByCommit(int commit);
+    List<IssueInstance> queryByCommit(Connection connection, int commit);
 
-    Date queryAppearTimeById(int id);
+    Date queryAppearTimeById(Connection connection, int id);
 
-    Date querySolveTimeById(int id);
+    Date querySolveTimeById(Connection connection, int id);
 
-    IssueCaseType queryTypeById(int id);
+    IssueCaseType queryTypeById(Connection connection, int id);
 }

@@ -6,6 +6,7 @@ import com.database.dao.impl.IssueInstanceDaoImpl;
 import com.database.object.IssueInstance;
 import com.database.service.IssueInstanceService;
 
+import java.sql.Connection;
 import java.util.Date;
 import java.util.List;
 
@@ -14,33 +15,28 @@ public class IssueInstanceServiceImpl implements IssueInstanceService {
     private IssueInstanceDao issueInstanceDao = new IssueInstanceDaoImpl();
 
     @Override
-    public int insert(IssueInstance issueInstance) {
-        return issueInstanceDao.insert(issueInstance);
+    public int insert(Connection connection, IssueInstance issueInstance) {
+        return issueInstanceDao.insert(connection, issueInstance);
     }
 
     @Override
-    public IssueInstance getInstById(int inst_id) {
-        return issueInstanceDao.queryById(inst_id);
+    public List<IssueInstance> getInstByCommit(Connection connection, int commit) {
+        return issueInstanceDao.queryByCommit(connection, commit);
     }
 
     @Override
-    public List<IssueInstance> getInstByCommit(int commit) {
-        return issueInstanceDao.queryByCommit(commit);
+    public Date getAppearTimeById(Connection connection, int inst_id) {
+        return issueInstanceDao.queryAppearTimeById(connection, inst_id);
     }
 
     @Override
-    public Date getAppearTimeById(int inst_id) {
-        return issueInstanceDao.queryAppearTimeById(inst_id);
+    public Date getSolveTimeById(Connection connection, int inst_id) {
+        return issueInstanceDao.querySolveTimeById(connection, inst_id);
     }
 
     @Override
-    public Date getSolveTimeById(int inst_id) {
-        return issueInstanceDao.querySolveTimeById(inst_id);
-    }
-
-    @Override
-    public IssueCaseType getTypeById(int inst_id) {
-        return issueInstanceDao.queryTypeById(inst_id);
+    public IssueCaseType getTypeById(Connection connection, int inst_id) {
+        return issueInstanceDao.queryTypeById(connection, inst_id);
     }
 
 }
