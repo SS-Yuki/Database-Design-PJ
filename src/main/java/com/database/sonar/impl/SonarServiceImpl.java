@@ -146,16 +146,21 @@ public class SonarServiceImpl implements SonarService {
     }
 
     @Override
-    public void showInstInfoByCommitForIndexTest(int commit) {
-        long startTime1 = System.currentTimeMillis();
-        List<IssueInstance> instances1 = instanceService.getInstByCommitWithIndex(commit);
-        long endTime1 = System.currentTimeMillis();
-        System.out.println("使用Index运行时间：" + (endTime1 - startTime1) + "ms" +  ",iss数量:" + instances1.size());
-
-        long startTime2 = System.currentTimeMillis();
-        List<IssueInstance> instances2 = instanceService.getInstByCommitWithoutIndex(commit);
-        long endTime2 = System.currentTimeMillis();
-        System.out.println("不使用Index运行时间：" + (endTime2 - startTime2) + "ms" + ",iss数量:" + instances2.size());
+    public void showInstInfoByCommitForIndexTest(int commit, String useIndex) {
+        if (Objects.equals(useIndex, "y")) {
+            long startTime1 = System.currentTimeMillis();
+            for (int i = 1; i <= commit; i++)
+                instanceService.getInstByCommitWithIndex(commit);
+            long endTime1 = System.currentTimeMillis();
+            System.out.println("使用Index运行时间：" + (endTime1 - startTime1) + "ms");
+        }
+        else {
+            long startTime2 = System.currentTimeMillis();
+            for (int i = 1; i <= commit; i++)
+                instanceService.getInstByCommitWithoutIndex(commit);
+            long endTime2 = System.currentTimeMillis();
+            System.out.println("不使用Index运行时间：" + (endTime2 - startTime2) + "ms");
+        }
         
     }
 

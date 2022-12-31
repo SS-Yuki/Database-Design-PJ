@@ -73,6 +73,7 @@ public class SonarCommand {
             }
             case "test-index": {
                 params.add(Integer.valueOf(strs[1]));
+                params.add(strs[2]);
                 return new SonarCommand(SonarCommandType.TEST_INDEX, params);
             }
             default: {

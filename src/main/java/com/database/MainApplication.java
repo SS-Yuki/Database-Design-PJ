@@ -39,7 +39,7 @@ public class MainApplication {
                     case DURATION: sonarService.showCaseInfoByDuration((Integer) params.get(0), (String) params.get(1), (Integer) params.get(2)); break;
                     case TRACE: sonarService.showTraceInfo((Integer) params.get(0)); break;
                     case IMPORT: sonarService.importRepository((String) params.get(0), (String) params.get(1)); break;
-                    case TEST_INDEX: sonarService.showInstInfoByCommitForIndexTest((Integer) params.get(0)); break;
+                    case TEST_INDEX: sonarService.showInstInfoByCommitForIndexTest((Integer) params.get(0), (String) params.get(1)); break;
                     case EXIT: flag = false; break;
                 }
             } catch (Exception e) {
@@ -59,7 +59,7 @@ public class MainApplication {
         System.out.println("duration [repository id] [branch name] [duration]   查看指定仓库中存续时间超过指定天数的缺陷情况");
         System.out.println("trace [case id]                                     查看某一缺陷的路径");
         System.out.println("import [base dir] [repository name]                 导入代码仓库");
-        System.out.println("test-index [commit id]                              测试Index");
+        System.out.println("test-index [commit id] [y/n]                        测试Index");
         System.out.println("exit                                                退出程序");
     }
 
