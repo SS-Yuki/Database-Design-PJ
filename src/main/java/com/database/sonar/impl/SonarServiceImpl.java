@@ -269,8 +269,8 @@ public class SonarServiceImpl implements SonarService {
                                 issueCase.setIssueCaseStatus(IssueCaseStatus.SOLVED);
                                 caseService.update(issueCase);
 
-                                IssueInstance curIssueInstance = importInstanceAndLocation(commitId, caseId, IssueInstanceStatus.DISAPPEAR, preRawIssue);
-                                curIssueInstances.add(curIssueInstance);
+                                // IssueInstance curIssueInstance = importInstanceAndLocation(commitId, caseId, IssueInstanceStatus.DISAPPEAR, preRawIssue);
+                                // curIssueInstances.add(curIssueInstance);
                             }
                         }
 
